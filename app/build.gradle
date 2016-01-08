@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.bennychee.popularmovies"
-        minSdkVersion 17
+        minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -15,6 +15,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        buildTypes.each {
+            it.buildConfigField 'String', 'MOVIE_DB_API_TOKEN', "$System.env.MOVIE_DB_API_TOKEN"
         }
     }
 }
