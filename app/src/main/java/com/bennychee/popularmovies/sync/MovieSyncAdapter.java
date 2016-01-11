@@ -8,9 +8,21 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.util.Config;
 import android.util.Log;
 
+import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import retrofit2.Retrofit;
+
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
@@ -22,6 +34,15 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync Called.");
+
+        String baseUrl = "http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc";
+        String apiKey = "&api_key=" + BuildConfig.MOVIE_DB_API_TOKEN;
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl + apiKey)
+                .build();
+
+
 
     }
 
