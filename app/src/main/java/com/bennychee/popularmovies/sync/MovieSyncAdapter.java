@@ -10,9 +10,12 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Config;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
+import com.bennychee.popularmovies.api.MovieService;
+import com.bennychee.popularmovies.api.models.PopMovieModel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +24,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
@@ -35,14 +41,40 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync Called.");
 
-        String baseUrl = "http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc";
-        String apiKey = "&api_key=" + BuildConfig.MOVIE_DB_API_TOKEN;
+        String baseUrl = "http://api.themoviedb.org/3";
+        String sortOrder = "popularity.desc";
+        String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
+
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl + apiKey)
+                .baseUrl(baseUrl)
                 .build();
 
+        MovieService service = retrofit.create(MovieService.class);
 
+        Call<PopMovieModel> popMovieModelCall = service.groupList(apiKey, sortOrder);
+
+        popMovieModelCall.enqueue(new Callback<PopMovieModel>() {
+                                     @Override
+                                 public void onResponse(Response<PopMovieModel> response) {
+                                         //Get result from response.body()
+                                         String str = "";
+                                         try {
+                                             str = response.errorBody().string();
+                                         } catch (IOException e) {
+                                         }
+                                         Toast.makeText(getContext(),
+                                                 response.body().getResults().get(0).getTitle(),
+                                                 Toast.LENGTH_SHORT)
+                                                 .show();
+                                     }
+
+                                     @Override
+                                 public void onFailure(Throwable t) {
+
+                                     }
+                                  }
+        );
 
     }
 
