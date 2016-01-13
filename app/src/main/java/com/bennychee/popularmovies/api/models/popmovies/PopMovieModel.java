@@ -1,5 +1,5 @@
 
-package com.bennychee.popularmovies.api.models;
+package com.bennychee.popularmovies.api.models.popmovies;
 
 import java.util.ArrayList;
 import java.util.List;

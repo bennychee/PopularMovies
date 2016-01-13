@@ -8,21 +8,17 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.util.Config;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.api.MovieService;
-import com.bennychee.popularmovies.api.models.PopMovieModel;
+import com.bennychee.popularmovies.api.models.popmovies.PopMovieModel;
+import com.bennychee.popularmovies.api.models.popmovies.PopMovieResult;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,8 +48,18 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         MovieService service = retrofit.create(MovieService.class);
 
-        Call<PopMovieModel> popMovieModelCall = service.groupList(apiKey, sortOrder);
+        Call<List<PopMovieModel>> popMovieModelCall = service.getPopMovies(apiKey, sortOrder);
 
+        try {
+            List<PopMovieResult> popMovieList = popMovieModelCall.execute().body();
+            for (PopMovieModel popMovieModel : popMovieList) {
+
+            }
+        } catch (IOException e) {
+
+        }
+
+/*
         popMovieModelCall.enqueue(new Callback<PopMovieModel>() {
                                      @Override
                                  public void onResponse(Response<PopMovieModel> response) {
@@ -75,6 +81,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                      }
                                   }
         );
+
+*/
+
+
 
     }
 
