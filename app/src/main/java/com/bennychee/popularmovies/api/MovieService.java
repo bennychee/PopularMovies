@@ -19,7 +19,7 @@ import retrofit2.http.Query;
 public interface MovieService {
 
     @GET("/discover/movie?api_key={apikey}")
-    Call<List<PopMovieModel>> getPopMovies(@Path("apikey") String apikey, @Query("sort_by") String sort);
+    Call<PopMovieModel> getPopMovies(@Path("apikey") String apikey, @Query("sort_by") String sort);
 
     @GET("/movie/{id}?api_key={apikey}")
     Call<MovieRuntime> getMovieRuntime(@Path("apikey") String apikey, @Path("id") int id);

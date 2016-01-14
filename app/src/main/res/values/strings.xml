@@ -4,4 +4,17 @@
 
     <string name="sync_account_type">popularmovies.bennychee.com</string>
     <string name="content_authority">com.bennychee.popularmovies.app</string>
+
+    <!-- Settings key-value pairs -->
+    <string name="prefs.sort.key" translatable="false">sorting_type</string>
+    <string name="prefs.sort.title">Sort movies by</string>
+    <string name="prefs.sort.default_value">popularity</string>
+    <string-array name="movie_sorting_keys" translatable="false">
+        <item>popularity</item>
+        <item>high_rated</item>
+    </string-array>
+    <string-array name="movie_sort_entries">
+        <item>Most popular</item>
+        <item>Highest rated</item>
+    </string-array>
 </resources>

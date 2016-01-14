@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bennychee.popularmovies.sync.MovieSyncAdapter;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        MovieSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override

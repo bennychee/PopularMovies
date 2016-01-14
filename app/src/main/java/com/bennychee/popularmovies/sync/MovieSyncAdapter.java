@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
@@ -18,6 +17,7 @@ import com.bennychee.popularmovies.api.models.popmovies.PopMovieModel;
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieResult;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -28,6 +28,10 @@ import retrofit2.Retrofit;
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
+
+    public static final int SYNC_INTERVAL = 60 * 60 * 10; // 10 hours
+    private static final int MOVIE_NOTIFICATION_ID = 1001;
+    private static long lastSyncTime = 0L;
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -41,6 +45,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         String sortOrder = "popularity.desc";
         String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
 
+        Log.d(LOG_TAG,apiKey);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -48,44 +53,32 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         MovieService service = retrofit.create(MovieService.class);
 
-        Call<List<PopMovieModel>> popMovieModelCall = service.getPopMovies(apiKey, sortOrder);
+        Call<PopMovieModel> popMovieModelCall = service.getPopMovies(apiKey, sortOrder);
 
-        try {
-            List<PopMovieResult> popMovieList = popMovieModelCall.execute().body();
-            for (PopMovieModel popMovieModel : popMovieList) {
-
-            }
-        } catch (IOException e) {
-
-        }
-
-/*
         popMovieModelCall.enqueue(new Callback<PopMovieModel>() {
-                                     @Override
-                                 public void onResponse(Response<PopMovieModel> response) {
-                                         //Get result from response.body()
-                                         String str = "";
-                                         try {
-                                             str = response.errorBody().string();
-                                         } catch (IOException e) {
-                                         }
-                                         Toast.makeText(getContext(),
-                                                 response.body().getResults().get(0).getTitle(),
-                                                 Toast.LENGTH_SHORT)
-                                                 .show();
-                                     }
+                                      @Override
+                                      public void onResponse(Response<PopMovieModel> response) {
+                                          //Get result from response.body()
+                                          List<PopMovieResult> mMovieList;
+                                          mMovieList = response.body().getResults();
 
-                                     @Override
+                                          for (int i = 0; i < mMovieList.size(); i++) {
+                                              Log.d(LOG_TAG, mMovieList.get(i).toString());
+                                          }
+                                      }
+
+                                      @Override
                                  public void onFailure(Throwable t) {
 
-                                     }
+                                      }
                                   }
         );
 
-*/
+    }
 
 
-
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 
     /**
@@ -93,7 +86,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context The context used to access the account service
      */
     public static void syncImmediately(Context context) {
-        Bundle bundle = new Bundle();     bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
@@ -120,8 +114,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         if ( null == accountManager.getPassword(newAccount) ) {
 
         /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
+         * Add the account and account type, no password or user data * If successful, return the Account object, otherwise report an error.
          */
             if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
                 return null;
