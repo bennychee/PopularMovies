@@ -33,10 +33,13 @@ import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
 
 import java.util.List;
 
+import retrofit.GsonConverterFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Converter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+
 
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
