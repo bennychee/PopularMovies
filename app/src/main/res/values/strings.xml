@@ -18,6 +18,8 @@
         <item>Highest rated</item>
     </string-array>
 
+    <string name="image_size_default" translatable="false">w185</string>
+    <string name="image_size_medium" translatable="false">w342</string>
 
     <!-- Strings related to Notification preference -->
     <string name="pref_last_notification">last_notification</string>

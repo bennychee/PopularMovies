@@ -19,6 +19,8 @@ android {
 
         buildTypes.each {
             it.buildConfigField 'String', 'MOVIE_DB_API_TOKEN', "$System.env.MOVIE_DB_API_TOKEN"
+            it.buildConfigField 'String', 'API_BASE_URL', "\"http://api.themoviedb.org/3/\""
+            it.buildConfigField 'String', 'IMAGE_BASE_URL', "\"http://image.tmdb.org/t/p/\""
         }
     }
 }

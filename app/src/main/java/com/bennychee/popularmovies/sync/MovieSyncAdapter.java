@@ -57,10 +57,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         if (Utility.isOneDayLater(lastSyncTime)) {
             String sortOrder = Utility.getPreferredSortOrder(getContext());
 
-            String baseUrl = "http://api.themoviedb.org/3";
+//            String baseUrl = "http://api.themoviedb.org/3";
+            String baseUrl = BuildConfig.API_BASE_URL;
             final String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
 
-            Log.d(LOG_TAG, apiKey);
+            Log.d(LOG_TAG, "Base URL = " + baseUrl);
+            Log.d(LOG_TAG, "API Key = " + apiKey);
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(baseUrl)
