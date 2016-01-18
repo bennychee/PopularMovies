@@ -92,7 +92,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         Utility.storeMovieList(getContext(), movieResultList);
 
                         for (final PopMovieResult movie : movieResultList) {
-//                            movieId.add(movie.getId());
                             Log.d(LOG_TAG, "Movie ID added: " + movie.getId());
 
                             Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movie.getId(), apiKey);
@@ -101,7 +100,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                 public void onResponse(Response<MovieRuntime> response) {
                                     Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
                                     if (!response.isSuccess()) {
-                                        Log.d(LOG_TAG, "Unsuccessful Call for Runtime "+ movie.getId() + " Response: " + response.errorBody().toString());
+                                        Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movie.getId() + " Response: " + response.errorBody().toString());
                                     } else {
                                         int runtime = response.body().getRuntime();
                                         Log.d(LOG_TAG, "Movie ID: " + movie.getId() + " Runtime: " + runtime);
@@ -115,15 +114,22 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                 }
                             });
 
+                            //To prevent too many request to the server, all request are delayed by 1s
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                            }
+
                             Call<MovieReviews> movieReviewsCall = service.getMovieReview(movie.getId(), apiKey);
                             movieReviewsCall.enqueue(new Callback<MovieReviews>() {
                                 @Override
                                 public void onResponse(Response<MovieReviews> response) {
                                     Log.d(LOG_TAG, "Movie Reviews Response Status: " + response.code());
                                     if (!response.isSuccess()) {
-                                        Log.d(LOG_TAG, "Unsuccessful Call for Reviews " + movie.getId() + " Response: " + response.errorBody().toString());
+                                        Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movie.getId() + " Response: " + response.errorBody().toString());
                                     } else {
                                         List<Result> reviewResultList = response.body().getResults();
+                                        Log.d(LOG_TAG, "Movie ID: " + movie.getId().toString() + " Reviews Added: " + reviewResultList.size());
                                         Utility.storeCommentList(getContext(), movie.getId(), reviewResultList);
                                     }
                                 }
@@ -140,10 +146,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                 public void onResponse(Response<MovieTrailers> response) {
                                     Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
                                     if (!response.isSuccess()) {
-                                        Log.d(LOG_TAG, "Unsuccessful Call for Trailer " + movie.getId() + " Response: " + response.errorBody().toString());
+                                        Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movie.getId() + " Response: " + response.errorBody().toString());
                                     } else {
                                         List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
-                                        Log.d(LOG_TAG, "Movie ID: " + movie.getId().toString() + "Trailers Added: " + trailersResultList.size());
+                                        Log.d(LOG_TAG, "Movie ID: " + movie.getId().toString() + " Trailers Added: " + trailersResultList.size());
                                         Utility.storeTrailerList(getContext(), movie.getId(), trailersResultList);
                                     }
                                 }
@@ -154,54 +160,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                 }
                             });
                         }
-
-
-/*                        }
-
-                        for (int i = 0; i < movieId.size(); i++) {
-                            Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId.get(i), apiKey);
-                            final int movie = movieId.get(i);
-                            movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
-                                @Override
-                                public void onResponse(Response<MovieRuntime> response) {
-                                    int runtime = response.body().getRuntime();
-                                    Log.d(LOG_TAG, "Movie ID: " + movie + " Runtime: " + runtime);
-                                    Utility.updateMovieWithRuntime(getContext(), movie, runtime);
-                                }
-
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
-                                }
-                            });
-                        }
-
-                        for (int i = 0; i < movieId.size(); i++) {
-                            Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId.get(i), apiKey);
-                            final int movie = movieId.get(i);
-                            movieReviewsCall.enqueue(new Callback<MovieReviews>() {
-                                @Override
-                                public void onResponse(Response<MovieReviews> response) {
-                                    Log.d (LOG_TAG, "Response Status for Movie Reviews: " + response.code());
-                                    if (!response.isSuccess()) {
-                                        Log.d(LOG_TAG, "Unsuccessful Call for Movie Reviews" + response.errorBody().toString());
-                                    } else {
-                                        List<Result> reviewResultList = response.body().getResults();
-                                        Log.d(LOG_TAG, "Movie ID: " + movie + " Reviews Added: " + reviewResultList.size());
-                                        Utility.storeCommentList(getContext(), movie, reviewResultList);
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
-                                }
-                            });
-                        }
-                    }
-                }
-
-*/
                     }
                 }
 
@@ -211,63 +169,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
             );
-
-/*                                            for (final PopMovieResult movie : movieResultList) {
-
-
-                                                Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movie.getId(), apiKey);
-                                                movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
-                                                    @Override
-                                                    public void onResponse(Response<MovieRuntime> response) {
-                                                        Log.d (LOG_TAG, "Response Status: " + response.code());
-                                                        if (!response.isSuccess()) {
-                                                            Log.d(LOG_TAG, "Unsuccessful Call for Runtime" + response.errorBody().toString());
-                                                        } else {
-                                                            int runtime = response.body().getRuntime();
-                                                            Log.d(LOG_TAG, "Movie ID: " + movie.getId() + " Runtime: " + runtime);
-                                                            Utility.updateMovieWithRuntime(getContext(), movie.getId(), runtime);
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(Throwable t) {
-                                                        Log.e(LOG_TAG, "Movie Runtime Error: " + t.toString());
-                                                    }
-                                                });
-
-                                                Call<MovieReviews> movieReviewsCall = service.getMovieReview(movie.getId(), apiKey);
-                                                movieReviewsCall.enqueue(new Callback<MovieReviews>() {
-                                                    @Override
-                                                    public void onResponse(Response<MovieReviews> response) {
-                                                        List<Result> reviewResultList = response.body().getResults();
-                                                        Utility.storeCommentList(getContext(),movie.getId(),reviewResultList);
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(Throwable t) {
-                                                        Log.e(LOG_TAG, "Movie Review Error: " + t.toString());
-                                                    }
-                                                });
-
-                                                Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movie.getId(), apiKey);
-                                                movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
-                                                    @Override
-                                                    public void onResponse(Response<MovieTrailers> response) {
-                                                        Log.d(LOG_TAG, "Movie ID: " + movie.getId().toString());
-                                                        List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
-                                                        Utility.storeTrailerList(getContext(),movie.getId(),trailersResultList);
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(Throwable t) {
-                                                        Log.e(LOG_TAG, "Movie Trailer Error: " + t.toString());
-                                                    }
-                                                });
-                                            }
-
-                                            notifyMovie();
-*/
-
+            notifyMovie();
         }
     }
 
