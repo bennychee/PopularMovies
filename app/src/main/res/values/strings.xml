@@ -3,12 +3,12 @@
     <string name="action_settings">Settings</string>
 
     <string name="sync_account_type">popularmovies.bennychee.com</string>
-    <string name="content_authority">com.bennychee.popularmovies.app</string>
+    <string name="content_authority">com.bennychee.popularmovies</string>
 
     <!-- Settings key-value pairs -->
-    <string name="prefs.sort.key" translatable="false">sorting_type</string>
-    <string name="prefs.sort.title">Sort movies by</string>
-    <string name="prefs.sort.default_value">popularity</string>
+    <string name="prefs_sort_key" translatable="false">sorting_type</string>
+    <string name="prefs_sort_title">Sort movies by</string>
+    <string name="prefs_sort_default_value">popularity.desc</string>
     <string-array name="movie_sorting_keys" translatable="false">
         <item>popularity</item>
         <item>high_rated</item>

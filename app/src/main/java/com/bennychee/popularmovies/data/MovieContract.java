@@ -8,13 +8,13 @@ import android.provider.BaseColumns;
 public class MovieContract {
 
     // Content Authority => The name of the Content Provider
-    public static final String CONTENT_AUTHORITY = "az.aldoziflaj.popmovies";
+    public static final String CONTENT_AUTHORITY = "com.bennychee.popularmovies";
 
     // Base content URI to access the data from the Content Provider
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Path to the table pointed by MovieEntry
-    // content://az.aldoziflaj.popmovies/movies
+    // content://com.bennychee.popularmovies/movies
     public static final String PATH_MOVIE = "movies";
     public static final String PATH_TRAILER = "trailers";
     public static final String PATH_REVIEW = "reviews";

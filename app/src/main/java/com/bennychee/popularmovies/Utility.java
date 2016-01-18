@@ -78,8 +78,11 @@ public class Utility {
 
             //get the poster url
             String posterPath = movie.getPosterPath();
-            cValues.put(MovieContract.MovieEntry.COLUMN_IMAGE_URL, posterPath);
-
+            if (posterPath.equalsIgnoreCase("null")) {
+                cValues.put(MovieContract.MovieEntry.COLUMN_IMAGE_URL,"placeholder");
+            } else {
+                cValues.put(MovieContract.MovieEntry.COLUMN_IMAGE_URL, posterPath);
+            }
             //get the rating
             double voteAverage = movie.getVoteAverage();
             cValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, voteAverage);
@@ -193,7 +196,7 @@ public class Utility {
     public static void storeTrailerList(Context context, int movieId, List<com.bennychee.popularmovies.api.models.trailers.Result> trailerList) {
         ArrayList<ContentValues> cvList = new ArrayList<>();
         int trailerListLength = trailerList.size();
-        Log.d(LOG_TAG, trailerListLength + " comments for movie with id " + movieId);
+        Log.d(LOG_TAG, trailerListLength + " trailers for movie with id " + movieId);
 
         for (int i = 0; i < trailerListLength; i++) {
             com.bennychee.popularmovies.api.models.trailers.Result trailer = trailerList.get(i);
