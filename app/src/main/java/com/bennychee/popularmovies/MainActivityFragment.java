@@ -35,6 +35,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private PopMovieAdapter popMovieAdapter;
     private GridView popMoviesGridView;
+    public static final int MOVIE_LOADER = 0;
 
     public MainActivityFragment() {
     }
@@ -59,6 +60,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private void updateMovies() {
         MovieSyncAdapter.syncImmediately(getActivity());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
