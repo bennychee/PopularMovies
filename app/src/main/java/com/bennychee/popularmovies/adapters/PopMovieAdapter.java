@@ -3,6 +3,7 @@ package com.bennychee.popularmovies.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ public class PopMovieAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        Log.d(LOG_TAG, "binding view" + view.toString());
         ImageView posterImageView = (ImageView) view.findViewById(R.id.poster_image);
 
         int posterColumn = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URL);

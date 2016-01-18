@@ -67,9 +67,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final String LOG_TAG = getActivity().getLocalClassName();
 
+        Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
         popMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
         popMoviesGridView.setAdapter(popMovieAdapter);
+
+        Log.d(LOG_TAG, "popMoviesGridView: " + popMoviesGridView.getAdapter().toString());
 
         return rootView;
     }
