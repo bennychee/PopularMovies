@@ -5,6 +5,8 @@
     <string name="sync_account_type">popularmovies.bennychee.com</string>
     <string name="content_authority">com.bennychee.popularmovies</string>
 
+    <string name="movie_image_desc">Movie Image</string>
+
     <!-- Settings key-value pairs -->
     <string name="prefs_sort_key" translatable="false">sorting_type</string>
     <string name="prefs_sort_title">Sort movies by</string>
@@ -33,5 +35,8 @@
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
     <string name="notification.content">New Movies Out Today!</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -1,6 +1,8 @@
 package com.bennychee.popularmovies;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.bennychee.popularmovies.adapters.PopMovieAdapter;
@@ -80,6 +83,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         popMoviesGridView.setAdapter(popMovieAdapter);
 
         Log.d(LOG_TAG, "popMoviesGridView: " + popMoviesGridView.getAdapter().toString());
+
+        popMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor currentPos = (Cursor) parent.getItemAtPosition(position);
+                if (currentPos != null) {
+                    Intent movieDetailIntent = new Intent(getActivity(), PopMovieDetailActivity.class);
+                    final int MOVIE_ID_COL = currentPos.getColumnIndex(MovieContract.MovieEntry._ID);
+                    Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentPos.getInt(MOVIE_ID_COL));
+
+                    movieDetailIntent.setData(movieUri);
+                    startActivity(movieDetailIntent);
+                }
+            }
+        });
 
         return rootView;
     }

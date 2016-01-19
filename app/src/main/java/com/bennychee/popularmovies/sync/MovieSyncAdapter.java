@@ -76,7 +76,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     .build();
 
             final MovieService service = retrofit.create(MovieService.class);
-            final ArrayList<Integer> movieId = new ArrayList<Integer>();
 
             Call<PopMovieModel> popMovieModelCall = service.getPopMovies(apiKey, sortOrder);
             popMovieModelCall.enqueue(new Callback<PopMovieModel>() {
@@ -91,6 +90,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         List<PopMovieResult> movieResultList = response.body().getResults();
                         Utility.storeMovieList(getContext(), movieResultList);
 
+/*
                         for (final PopMovieResult movie : movieResultList) {
                             Log.d(LOG_TAG, "Movie ID added: " + movie.getId());
 
@@ -152,6 +152,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                         Log.d(LOG_TAG, "Movie ID: " + movie.getId().toString() + " Trailers Added: " + trailersResultList.size());
                                         Utility.storeTrailerList(getContext(), movie.getId(), trailersResultList);
                                     }
+
                                 }
 
                                 @Override
@@ -160,7 +161,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                 }
                             });
                         }
-                    }
+*/                    }
                 }
 
                 @Override
