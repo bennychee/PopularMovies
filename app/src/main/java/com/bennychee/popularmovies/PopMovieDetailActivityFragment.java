@@ -73,6 +73,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri) {
 
+            //fetch movie details on-the-fly and store in DB
             int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
             LoadMovieDetails(movieId);
 
@@ -132,7 +133,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(getContext(), movieId, trailersResultList);
                 }
-
             }
 
             @Override

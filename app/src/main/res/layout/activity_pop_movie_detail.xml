@@ -11,9 +11,4 @@
     tools:context="com.bennychee.popularmovies.PopMovieDetailActivityFragment"
     tools:layout="@layout/fragment_pop_movie_detail_activity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="test detailactivity" />
-
 </RelativeLayout>
