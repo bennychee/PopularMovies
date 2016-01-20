@@ -18,6 +18,10 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
 import com.bennychee.popularmovies.api.models.review.Result;
+import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
+import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
+import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
+
 import com.commonsware.cwac.merge.MergeAdapter;
 
 import java.util.ArrayList;
@@ -36,12 +40,30 @@ import retrofit2.Retrofit;
 public class PopMovieDetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = PopMovieDetailActivityFragment.class.getSimpleName();
-    private static final int DETAIL_LOADER = 0;
+
+    private static final int MOVIE_DETAIL_LOADER = 0;
+    private static final int REVIEW_DETAIL_LOADER = 1;
+    private static final int TRAILER_DETAIL_LOADER = 2;
+
     static final String DETAIL_URI = "URI";
 
     private Uri mUri;
 
     MergeAdapter mergeAdapter = new MergeAdapter();
+
+    private static final String[] MOVIE_DETAIL_COLUMNS = {
+            MovieEntry.TABLE_NAME + "." + MovieEntry._ID,
+            MovieEntry.COLUMN_TITLE,
+            MovieEntry.COLUMN_RELEASE_DATE,
+            MovieEntry.COLUMN_VOTE_AVERAGE,
+            MovieEntry.COLUMN_VOTE_COUNT,
+            MovieEntry.COLUMN_DESCRIPTION,
+            MovieEntry.COLUMN_IMAGE_URL,
+            MovieEntry.COLUMN_POPULARITY,
+            MovieEntry.COLUMN_RUNTIME,
+            MovieEntry.COLUMN_FAVORITE
+    };
+
 
     public PopMovieDetailActivityFragment() {
         // Required empty public constructor
@@ -69,7 +91,9 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -81,14 +105,37 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
             int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
             LoadMovieDetails(movieId);
 
-            return new CursorLoader(
-                    getActivity(),
-                    mUri,
-                    null,
-                    null,
-                    null,
-                    null
-            );
+            if (id == MOVIE_DETAIL_LOADER) {
+                Log.d(LOG_TAG, "Movie Details Loader Created");
+                return new CursorLoader(
+                        getActivity(),
+                        mUri,
+                        MOVIE_DETAIL_COLUMNS,
+                        null,
+                        null,
+                        null
+                );
+            } else if (id == REVIEW_DETAIL_LOADER) {
+                Log.d(LOG_TAG, "Review Loader Created");
+                return new CursorLoader(
+                        getActivity(),
+                        mUri,
+                        MOVIE_DETAIL_COLUMNS,
+                        null,
+                        null,
+                        null
+                );
+            } else if (id == TRAILER_DETAIL_LOADER) {
+                Log.d(LOG_TAG, "Trailer Loader Created");
+                return new CursorLoader(
+                        getActivity(),
+                        mUri,
+                        MOVIE_DETAIL_COLUMNS,
+                        null,
+                        null,
+                        null
+                );
+            }
         }
         return null;
     }
