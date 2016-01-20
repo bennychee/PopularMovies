@@ -18,7 +18,9 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
 import com.bennychee.popularmovies.api.models.review.Result;
+import com.commonsware.cwac.merge.MergeAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,6 +40,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     static final String DETAIL_URI = "URI";
 
     private Uri mUri;
+
+    MergeAdapter mergeAdapter = new MergeAdapter();
 
     public PopMovieDetailActivityFragment() {
         // Required empty public constructor
@@ -122,13 +126,25 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
             boolean mtl = MovieTrailers(movieId, apiKey, service);
 
             //Wait for response before moving out of method
-            if (mrt && mrv && mtl)
-            Log.d(LOG_TAG, "Done with Loading Movie Details");
+            if (mrt && mrv && mtl) {
+              Log.d(LOG_TAG, "Done with Loading Movie Details");
+            }
         }
     }
 
+/* TODO: wait for response before execute
+    private boolean movieResponse (String TAG, boolean response) {
+        ArrayList<List> movieListResponse;
+        if (response) {
+
+        }
+        return true;
+    }
+*/
+
     private boolean MovieTrailers(final int movieId, String apiKey, MovieService service) {
         Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
+        //final String mtl = "mtl";
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
             @Override
             public void onResponse(Response<MovieTrailers> response) {
@@ -139,6 +155,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(getContext(), movieId, trailersResultList);
+                    //movieResponse(mtl, true);
                 }
             }
 
