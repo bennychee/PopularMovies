@@ -117,13 +117,17 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
             final MovieService service = retrofit.create(MovieService.class);
 
-            MovieRuntime(movieId, apiKey, service);
-            MovieReview(movieId, apiKey, service);
-            MovieTrailers(movieId, apiKey, service);
+            boolean mrt = MovieRuntime(movieId, apiKey, service);
+            boolean mrv = MovieReview(movieId, apiKey, service);
+            boolean mtl = MovieTrailers(movieId, apiKey, service);
+
+            //Wait for response before moving out of method
+            if (mrt && mrv && mtl)
+            Log.d(LOG_TAG, "Done with Loading Movie Details");
         }
     }
 
-    private void MovieTrailers(final int movieId, String apiKey, MovieService service) {
+    private boolean MovieTrailers(final int movieId, String apiKey, MovieService service) {
         Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
             @Override
@@ -143,9 +147,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
             }
         });
+
+        return true;
     }
 
-    private void MovieReview(final int movieId, String apiKey, MovieService service) {
+    private boolean MovieReview(final int movieId, String apiKey, MovieService service) {
         Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId, apiKey);
         movieReviewsCall.enqueue(new Callback<MovieReviews>() {
             @Override
@@ -164,9 +170,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
             }
         });
+
+        return true;
     }
 
-    private void MovieRuntime(final int movieId, String apiKey, MovieService service) {
+    private boolean MovieRuntime(final int movieId, String apiKey, MovieService service) {
         Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
         movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
             @Override
@@ -186,6 +194,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
             }
         });
+
+        return true;
     }
 
 }
