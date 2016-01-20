@@ -268,4 +268,31 @@ public class Utility {
             return -1;
         }
     }
+
+    /**
+     * Fetches the runtime from the database, as fetched from the cloud service
+     *
+     * @param context  The application context
+     * @param movieUri The URI of the movie, pointing in the movie table
+     * @return The runtime, or -1 if something goes wrong
+     */
+    public static int checkRuntimeFromUri(Context context, Uri movieUri) {
+        long _id = MovieContract.MovieEntry.getIdFromUri(movieUri);
+
+        Cursor c = context.getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                new String[]{MovieContract.MovieEntry.COLUMN_RUNTIME},
+                MovieContract.MovieEntry._ID + " = ?",
+                new String[]{String.valueOf(_id)},
+                null);
+
+        if (c.moveToFirst()) {
+            int runtime = c.getColumnIndex(MovieContract.MovieEntry.COLUMN_RUNTIME);
+            Log.d(LOG_TAG, "Runtime check: " + c.getInt(runtime));
+            return c.getInt(runtime);
+        } else {
+            return -1;
+        }
+    }
+
 }

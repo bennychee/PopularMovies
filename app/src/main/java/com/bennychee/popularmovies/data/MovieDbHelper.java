@@ -6,13 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MovieDbHelper extends SQLiteOpenHelper {
 
-    /**
-     * 1. First half of the task. Only show movies and their details
-     * 2. Second half of the task. Show trailers, reviews for each movie, and add the runtime of
-     *    each movie.
-     * 3. Add a column for favorited movie.
-     * 4. Make the review_id and trailer_id unique (A good developer would have seen this coming!)
-     */
     static final int DATABASE_VERSION = 4;
 
     static final String DATABASE_NAME = "movies.db";

@@ -115,9 +115,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
         final MovieService service = retrofit.create(MovieService.class);
 
-        MovieRuntime(movieId, apiKey, service);
-        MovieReview(movieId, apiKey, service);
-        MovieTrailers(movieId, apiKey, service);
+        if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+            MovieRuntime(movieId, apiKey, service);
+            MovieReview(movieId, apiKey, service);
+            MovieTrailers(movieId, apiKey, service);
+        }
     }
 
     private void MovieTrailers(final int movieId, String apiKey, MovieService service) {
@@ -154,8 +156,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(getContext(), movieId, reviewResultList);
-                }
-            }
+                }            }
 
             @Override
             public void onFailure(Throwable t) {
@@ -187,4 +188,3 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     }
 
 }
-
