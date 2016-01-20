@@ -27,6 +27,7 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.GsonConverterFactory;
@@ -44,6 +45,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     private static final int MOVIE_DETAIL_LOADER = 0;
     private static final int REVIEW_DETAIL_LOADER = 1;
     private static final int TRAILER_DETAIL_LOADER = 2;
+
+    private int countMtl = 0;
+    private boolean mtl = false;
+    private boolean mrv = false;
+    private boolean mrt = false;
 
     static final String DETAIL_URI = "URI";
 
@@ -65,6 +71,21 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     };
 
 
+
+    private static final String[] REVIEW_COLUMNS = {
+            ReviewEntry.TABLE_NAME + "." + ReviewEntry._ID,
+            ReviewEntry.COLUMN_REVIEW_ID,
+            ReviewEntry.COLUMN_AUTHOR,
+            ReviewEntry.COLUMN_CONTENT
+    };
+
+    private static final String[] TRAILERS_COLUMNS = {
+            TrailerEntry.TABLE_NAME + "." + TrailerEntry._ID,
+            TrailerEntry.COLUMN_TRAILER_ID,
+            TrailerEntry.COLUMN_TITLE,
+            TrailerEntry.COLUMN_YOUTUBE_KEY
+    };
+
     public PopMovieDetailActivityFragment() {
         // Required empty public constructor
         setHasOptionsMenu(true);
@@ -85,6 +106,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
         if (intent == null) {
             return null;
         }
+
+        EventBus.getDefault().register(this);
 
         return rootView;
     }
@@ -120,7 +143,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        MOVIE_DETAIL_COLUMNS,
+                        REVIEW_COLUMNS,
                         null,
                         null,
                         null
@@ -130,7 +153,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        MOVIE_DETAIL_COLUMNS,
+                        TRAILERS_COLUMNS,
                         null,
                         null,
                         null
@@ -168,41 +191,49 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
             final MovieService service = retrofit.create(MovieService.class);
 
-            boolean mrt = MovieRuntime(movieId, apiKey, service);
-            boolean mrv = MovieReview(movieId, apiKey, service);
-            boolean mtl = MovieTrailers(movieId, apiKey, service);
+            mtl = false;
+            mrv = false;
+            mrt = false;
+
+            mrt = MovieRuntime(movieId, apiKey, service);
+            mrv = MovieReview(movieId, apiKey, service);
+            mtl = MovieTrailers(movieId, apiKey, service);
 
             //Wait for response before moving out of method
-            if (mrt && mrv && mtl) {
-              Log.d(LOG_TAG, "Done with Loading Movie Details");
+            if (mtl) {
+              Log.d(LOG_TAG, "mtl = " + mtl + " Done with Loading Movie Details");
             }
         }
     }
 
-/* TODO: wait for response before execute
-    private boolean movieResponse (String TAG, boolean response) {
-        ArrayList<List> movieListResponse;
-        if (response) {
-
-        }
-        return true;
-    }
-*/
-
-    private boolean MovieTrailers(final int movieId, String apiKey, MovieService service) {
+    private boolean MovieTrailers(final int movieId, final String apiKey, final MovieService service) {
         Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
-        //final String mtl = "mtl";
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
             @Override
             public void onResponse(Response<MovieTrailers> response) {
                 Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
+                    //Retry 3 tries
+                    if (countMtl <4) {
+                        try {
+                            wait(500);
+                        } catch (InterruptedException e) {
+                        }
+                        MovieTrailers(movieId, apiKey, service);
+                        countMtl++;
+                    } else {
+                        //Max retry, moving on
+                        mtl = true;
+                    }
                 } else {
+                    mtl = false;
+                    Log.d(LOG_TAG, "mtl = " + mtl);
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(getContext(), movieId, trailersResultList);
-                    //movieResponse(mtl, true);
+                    mtl = true;
+                    Log.d(LOG_TAG, "mtl = " + mtl);
                 }
             }
 
