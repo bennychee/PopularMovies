@@ -102,20 +102,21 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
     private void LoadMovieDetails (final int movieId) {
 
-        String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
-        String baseUrl = BuildConfig.API_BASE_URL;
-
-        Log.d(LOG_TAG, "Base URL = " + baseUrl);
-        Log.d(LOG_TAG, "API Key = " + apiKey);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        final MovieService service = retrofit.create(MovieService.class);
-
+        // check runtime from DB for movie ID so that if it is found in DB, no retrieval required
         if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
+            String baseUrl = BuildConfig.API_BASE_URL;
+
+            Log.d(LOG_TAG, "Base URL = " + baseUrl);
+            Log.d(LOG_TAG, "API Key = " + apiKey);
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            final MovieService service = retrofit.create(MovieService.class);
+
             MovieRuntime(movieId, apiKey, service);
             MovieReview(movieId, apiKey, service);
             MovieTrailers(movieId, apiKey, service);
