@@ -57,7 +57,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     private int movieId;
 
     private ListView mListView;
-    MergeAdapter mergeAdapter = new MergeAdapter();
+    MergeAdapter mergeAdapter;
     TrailerAdapter trailerAdapter;
     ReviewAdapter reviewAdapter;
 
@@ -82,6 +82,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mergeAdapter  = new MergeAdapter();
         EventBus.getDefault().register(this);
     }
 
@@ -100,6 +102,29 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
         if (intent == null) {
             return null;
         }
+
+        Cursor trailersCursor = getActivity().getContentResolver().query(
+                TrailerEntry.CONTENT_URI,
+                null,
+                TrailerEntry.COLUMN_MOVIE_ID + "=?",
+                new String[]{String.valueOf(movieId)},
+                null
+        );
+
+        trailerAdapter = new TrailerAdapter(getActivity(), trailersCursor, 0);
+        mergeAdapter.addAdapter(trailerAdapter);
+
+        Cursor reviewCursor = getActivity().getContentResolver().query(
+                ReviewEntry.CONTENT_URI,
+                null,
+                ReviewEntry.COLUMN_MOVIE_ID + "=?",
+                new String[]{String.valueOf(movieId)},
+                null
+        );
+
+        reviewAdapter = new ReviewAdapter(getActivity(), reviewCursor, 0);
+        mergeAdapter.addAdapter(reviewAdapter);
+
 
         mListView = (ListView) rootView.findViewById(R.id.listview_detail);
         mListView.setAdapter(mergeAdapter);
@@ -166,7 +191,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 Log.d(LOG_TAG, "Review Loader Created");
                 return new CursorLoader(
                         getActivity(),
-                        mUri,
+                        ReviewEntry.CONTENT_URI,
                         null,
                         ReviewEntry.COLUMN_MOVIE_ID + "=?",
                         new String[]{String.valueOf(movieId)},
@@ -176,7 +201,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 Log.d(LOG_TAG, "Trailer Loader Created");
                 return new CursorLoader(
                         getActivity(),
-                        mUri,
+                        TrailerEntry.CONTENT_URI,
                         null,
                         TrailerEntry.COLUMN_MOVIE_ID + "=?",
                         new String[]{String.valueOf(movieId)},
@@ -192,22 +217,16 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
         switch (loader.getId()) {
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
-                trailerAdapter = new TrailerAdapter(getActivity(), data, 0);
                 trailerAdapter.swapCursor(data);
-                mergeAdapter.addAdapter(trailerAdapter);
                 break;
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                 break;
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Review Adapter");
-                reviewAdapter = new ReviewAdapter(getActivity(), data, 0);
                 reviewAdapter.swapCursor(data);
-                mergeAdapter.addAdapter(reviewAdapter);
                 break;
         }
-
-
     }
 
     @Override
