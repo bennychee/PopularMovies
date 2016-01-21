@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
@@ -48,15 +49,12 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     private static final int REVIEW_DETAIL_LOADER = 1;
     private static final int TRAILER_DETAIL_LOADER = 2;
 
-    private int countMtl = 0;
-    private boolean mtl = false;
-    private boolean mrv = false;
-    private boolean mrt = false;
-
     static final String DETAIL_URI = "URI";
 
     private Uri mUri;
+    private int movieId;
 
+    private ListView mListView;
     MergeAdapter mergeAdapter = new MergeAdapter();
 
     private static final String[] MOVIE_DETAIL_COLUMNS = {
@@ -70,22 +68,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
             MovieEntry.COLUMN_POPULARITY,
             MovieEntry.COLUMN_RUNTIME,
             MovieEntry.COLUMN_FAVORITE
-    };
-
-
-
-    private static final String[] REVIEW_COLUMNS = {
-//            ReviewEntry.TABLE_NAME + "." + ReviewEntry._ID,
-            ReviewEntry.COLUMN_REVIEW_ID,
-            ReviewEntry.COLUMN_AUTHOR,
-            ReviewEntry.COLUMN_CONTENT
-    };
-
-    private static final String[] TRAILERS_COLUMNS = {
-  //          TrailerEntry.TABLE_NAME + "." + TrailerEntry._ID,
-            TrailerEntry.COLUMN_TRAILER_ID,
-            TrailerEntry.COLUMN_TITLE,
-            TrailerEntry.COLUMN_YOUTUBE_KEY
     };
 
     public PopMovieDetailActivityFragment() {
@@ -115,6 +97,9 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
             return null;
         }
 
+        mListView = (ListView) rootView.findViewById(R.id.listview_detail);
+        mListView.setAdapter(mergeAdapter);
+
         return rootView;
     }
 
@@ -130,7 +115,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     public void onEvent(TrailerEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the trailer loader!");
-            //getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
+            getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
         } else {
 
         }
@@ -139,7 +124,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     public void onEvent(ReviewEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the review loader!");
-            //getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
+            getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
         } else {
 
         }
@@ -154,7 +139,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
-        int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
         LoadMovieDetails(movieId);
 
         super.onActivityCreated(savedInstanceState);
@@ -178,9 +163,9 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        REVIEW_COLUMNS,
                         null,
-                        null,
+                        ReviewEntry.COLUMN_MOVIE_ID + "=?",
+                        new String[]{String.valueOf(movieId)},
                         null
                 );
             } else if (id == TRAILER_DETAIL_LOADER) {
@@ -188,9 +173,9 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        TRAILERS_COLUMNS,
                         null,
-                        null,
+                        TrailerEntry.COLUMN_MOVIE_ID + "=?",
+                        new String[]{String.valueOf(movieId)},
                         null
                 );
             }
@@ -200,7 +185,14 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        switch (loader.getId()) {
+            case TRAILER_DETAIL_LOADER:
+                break;
+            case MOVIE_DETAIL_LOADER:
+                break;
+            case REVIEW_DETAIL_LOADER:
+                break;
+        }
     }
 
     @Override

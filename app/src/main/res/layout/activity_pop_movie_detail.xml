@@ -11,4 +11,6 @@
     tools:context="com.bennychee.popularmovies.PopMovieDetailActivityFragment"
     tools:layout="@layout/fragment_pop_movie_detail_activity">
 
+
+
 </RelativeLayout>
