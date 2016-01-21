@@ -22,9 +22,11 @@ import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
 
+import com.bennychee.popularmovies.event.ReviewEvent;
+import com.bennychee.popularmovies.event.RuntimeEvent;
+import com.bennychee.popularmovies.event.TrailerEvent;
 import com.commonsware.cwac.merge.MergeAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -73,14 +75,14 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
 
     private static final String[] REVIEW_COLUMNS = {
-            ReviewEntry.TABLE_NAME + "." + ReviewEntry._ID,
+//            ReviewEntry.TABLE_NAME + "." + ReviewEntry._ID,
             ReviewEntry.COLUMN_REVIEW_ID,
             ReviewEntry.COLUMN_AUTHOR,
             ReviewEntry.COLUMN_CONTENT
     };
 
     private static final String[] TRAILERS_COLUMNS = {
-            TrailerEntry.TABLE_NAME + "." + TrailerEntry._ID,
+  //          TrailerEntry.TABLE_NAME + "." + TrailerEntry._ID,
             TrailerEntry.COLUMN_TRAILER_ID,
             TrailerEntry.COLUMN_TITLE,
             TrailerEntry.COLUMN_YOUTUBE_KEY
@@ -89,6 +91,12 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
     public PopMovieDetailActivityFragment() {
         // Required empty public constructor
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -107,27 +115,54 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
             return null;
         }
 
-        EventBus.getDefault().register(this);
-
         return rootView;
+    }
+
+    public void onEvent(RuntimeEvent event) {
+        if (event.isRetrofitCompleted) {
+            Log.d(LOG_TAG, "Retrofit done, load the movie detail loader!");
+            getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
+        } else {
+
+        }
+    }
+
+    public void onEvent(TrailerEvent event) {
+        if (event.isRetrofitCompleted) {
+            Log.d(LOG_TAG, "Retrofit done, load the trailer loader!");
+            //getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
+        } else {
+
+        }
+    }
+
+    public void onEvent(ReviewEvent event) {
+        if (event.isRetrofitCompleted) {
+            Log.d(LOG_TAG, "Retrofit done, load the review loader!");
+            //getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
+        } else {
+
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
-        getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
-        getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
+        //fetch movie details on-the-fly and store in DB
+        int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+        LoadMovieDetails(movieId);
+
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri) {
-
-            //fetch movie details on-the-fly and store in DB
-            int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-            LoadMovieDetails(movieId);
-
             if (id == MOVIE_DETAIL_LOADER) {
                 Log.d(LOG_TAG, "Movie Details Loader Created");
                 return new CursorLoader(
@@ -191,22 +226,13 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
             final MovieService service = retrofit.create(MovieService.class);
 
-            mtl = false;
-            mrv = false;
-            mrt = false;
-
-            mrt = MovieRuntime(movieId, apiKey, service);
-            mrv = MovieReview(movieId, apiKey, service);
-            mtl = MovieTrailers(movieId, apiKey, service);
-
-            //Wait for response before moving out of method
-            if (mtl) {
-              Log.d(LOG_TAG, "mtl = " + mtl + " Done with Loading Movie Details");
-            }
+            MovieRuntime(movieId, apiKey, service);
+            MovieReview(movieId, apiKey, service);
+            MovieTrailers(movieId, apiKey, service);
         }
     }
 
-    private boolean MovieTrailers(final int movieId, final String apiKey, final MovieService service) {
+    private void MovieTrailers(final int movieId, final String apiKey, final MovieService service) {
         Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
             @Override
@@ -214,39 +240,24 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                 Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
-                    //Retry 3 tries
-                    if (countMtl <4) {
-                        try {
-                            wait(500);
-                        } catch (InterruptedException e) {
-                        }
-                        MovieTrailers(movieId, apiKey, service);
-                        countMtl++;
-                    } else {
-                        //Max retry, moving on
-                        mtl = true;
-                    }
                 } else {
-                    mtl = false;
-                    Log.d(LOG_TAG, "mtl = " + mtl);
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(getContext(), movieId, trailersResultList);
-                    mtl = true;
-                    Log.d(LOG_TAG, "mtl = " + mtl);
+                    EventBus.getDefault().post(new TrailerEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
+                EventBus.getDefault().post(new TrailerEvent(false));
             }
         });
 
-        return true;
     }
 
-    private boolean MovieReview(final int movieId, String apiKey, MovieService service) {
+    private void MovieReview(final int movieId, String apiKey, MovieService service) {
         Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId, apiKey);
         movieReviewsCall.enqueue(new Callback<MovieReviews>() {
             @Override
@@ -258,18 +269,19 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(getContext(), movieId, reviewResultList);
-                }            }
+                    EventBus.getDefault().post(new ReviewEvent(true));
+                }
+            }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
-            }
+                EventBus.getDefault().post(new ReviewEvent(false));}
         });
 
-        return true;
     }
 
-    private boolean MovieRuntime(final int movieId, String apiKey, MovieService service) {
+    private void MovieRuntime(final int movieId, String apiKey, MovieService service) {
         Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
         movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
             @Override
@@ -281,16 +293,17 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
                     int runtime = response.body().getRuntime();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(getContext(), movieId, runtime);
+                    EventBus.getDefault().post(new RuntimeEvent(true));
+                    Log.d(LOG_TAG, "EventBus posted");
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
+                EventBus.getDefault().post(new RuntimeEvent(false));
             }
         });
 
-        return true;
     }
-
 }
