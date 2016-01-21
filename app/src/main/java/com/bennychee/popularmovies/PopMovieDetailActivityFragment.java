@@ -58,6 +58,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
     private ListView mListView;
     MergeAdapter mergeAdapter = new MergeAdapter();
+    TrailerAdapter trailerAdapter;
+    ReviewAdapter reviewAdapter;
 
     private static final String[] MOVIE_DETAIL_COLUMNS = {
             MovieEntry.TABLE_NAME + "." + MovieEntry._ID,
@@ -187,29 +189,42 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.d(LOG_TAG, "Inside onLoadFinished");
-        TrailerAdapter trailerAdapter = new TrailerAdapter(getActivity(), data, 0);
-        ReviewAdapter reviewAdapter = new ReviewAdapter(getActivity(), data, 0);
-
         switch (loader.getId()) {
             case TRAILER_DETAIL_LOADER:
+                Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
+                trailerAdapter = new TrailerAdapter(getActivity(), data, 0);
                 trailerAdapter.swapCursor(data);
+                mergeAdapter.addAdapter(trailerAdapter);
                 break;
             case MOVIE_DETAIL_LOADER:
+                Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                 break;
             case REVIEW_DETAIL_LOADER:
+                Log.d(LOG_TAG, "Inside onLoadFinished - Review Adapter");
+                reviewAdapter = new ReviewAdapter(getActivity(), data, 0);
                 reviewAdapter.swapCursor(data);
+                mergeAdapter.addAdapter(reviewAdapter);
                 break;
         }
 
-        mergeAdapter.addAdapter(trailerAdapter);
-        mergeAdapter.addAdapter(reviewAdapter);
 
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        switch (loader.getId()) {
+            case TRAILER_DETAIL_LOADER:
+                Log.d(LOG_TAG, "Inside onLoaderReset - Trailer Adapter");
+                trailerAdapter.swapCursor(null);
+                break;
+            case MOVIE_DETAIL_LOADER:
+                Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
+                break;
+            case REVIEW_DETAIL_LOADER:
+                Log.d(LOG_TAG, "Inside onLoaderReset - Review Adapter");
+                reviewAdapter.swapCursor(null);
+                break;
+        }
     }
 
 
@@ -233,6 +248,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
             MovieRuntime(movieId, apiKey, service);
             MovieReview(movieId, apiKey, service);
             MovieTrailers(movieId, apiKey, service);
+        } else {
+            Log.d(LOG_TAG, "Info in DB. No Retrofit callback required");
+            EventBus.getDefault().post(new TrailerEvent(true));
+            EventBus.getDefault().post(new ReviewEvent(true));
+            EventBus.getDefault().post(new RuntimeEvent(true));
         }
     }
 
