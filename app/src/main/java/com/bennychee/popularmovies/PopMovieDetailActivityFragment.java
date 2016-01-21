@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.bennychee.popularmovies.adapters.ReviewAdapter;
+import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
@@ -185,14 +187,24 @@ public class PopMovieDetailActivityFragment extends Fragment implements LoaderMa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(LOG_TAG, "Inside onLoadFinished");
+        TrailerAdapter trailerAdapter = new TrailerAdapter(getActivity(), data, 0);
+        ReviewAdapter reviewAdapter = new ReviewAdapter(getActivity(), data, 0);
+
         switch (loader.getId()) {
             case TRAILER_DETAIL_LOADER:
+                trailerAdapter.swapCursor(data);
                 break;
             case MOVIE_DETAIL_LOADER:
                 break;
             case REVIEW_DETAIL_LOADER:
+                reviewAdapter.swapCursor(data);
                 break;
         }
+
+        mergeAdapter.addAdapter(trailerAdapter);
+        mergeAdapter.addAdapter(reviewAdapter);
+
     }
 
     @Override
