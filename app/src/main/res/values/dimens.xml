@@ -13,4 +13,9 @@
     <dimen name="image_height">120dp</dimen>
     <dimen name="image_final_width">32dp</dimen>
     <dimen name="spacing_normal">16dp</dimen>
+
+    <dimen name="movie_details_poster_width">150dp</dimen>
+    <dimen name="movie_details_poster_top_margin">-16dp</dimen>
+    <dimen name="movie_details_poster_left_margin">16dp</dimen>
+
 </resources>

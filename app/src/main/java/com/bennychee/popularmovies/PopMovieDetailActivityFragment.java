@@ -70,11 +70,14 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
     private LinearLayout mTitleContainer;
     private TextView mTitle;
     private TextView mDescription;
-    private TextView mMovieName;
     private AppBarLayout mAppBarLayout;
     private CollapsingToolbarLayout mToolbar;
     private ImageView posterImageView;
     private ImageView backdropImageView;
+    private TextView mMovieRuntime;
+    private TextView mMovieYear;
+    private TextView mMovieRating;
+    private TextView mVotes;
 
     private static final int MOVIE_DETAIL_LOADER = 0;
     private static final int REVIEW_DETAIL_LOADER = 1;
@@ -137,10 +140,14 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
         mTitle          = (TextView) rootView.findViewById(R.id.main_textview_title);
 
         mDescription = (TextView) rootView.findViewById(R.id.movie_desc);
-        mMovieName = (TextView) rootView.findViewById(R.id.movie_name);
 
         posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);
         backdropImageView = (ImageView) rootView.findViewById(R.id.detail_backdrop_image);
+
+        mMovieRating = (TextView) rootView.findViewById(R.id.movie_rating);
+        mMovieRuntime = (TextView) rootView.findViewById(R.id.movie_runtime);
+        mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
+        mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
 
 //        mToolbar.setTitle("");
 //        mAppBarLayout.addOnOffsetChangedListener(this);
@@ -285,7 +292,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
         if (data != null && data.moveToFirst()) {
             String title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
             Log.d(LOG_TAG, "Title: " + title);
-            mMovieName.setText(title);
             mToolbar.setTitle(title);
 
             String desc = data.getString(data.getColumnIndex(MovieEntry.COLUMN_DESCRIPTION));
@@ -304,14 +310,12 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
                     .appendPath(backdropPoster.substring(1))
                     .build();
 
-/*
             Picasso.with(getActivity())
                     .load(imageUri)
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.error)
                     .tag(getActivity())
                     .into(posterImageView);
-*/
 
             Picasso.with(getActivity())
                     .load(backdropUri)
@@ -319,6 +323,12 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
                     .error(R.drawable.error)
                     .tag(getActivity())
                     .into(backdropImageView);
+
+            mMovieYear.setText(Utility.getReleaseYear(data.getString(data.getColumnIndex(MovieEntry.COLUMN_RELEASE_DATE))));
+            mMovieRuntime.setText(getActivity().getString(R.string.runtime_mins, data.getString(data.getColumnIndex(MovieEntry.COLUMN_RUNTIME))));
+            mMovieRating.setText(getActivity().getString(R.string.ratings_ten, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE))));
+            mVotes.setText(getActivity().getString(R.string.votes, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_COUNT))));
+
 
         }
     }

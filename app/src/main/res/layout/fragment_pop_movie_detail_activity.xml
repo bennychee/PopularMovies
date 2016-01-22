@@ -73,6 +73,8 @@
                 app:cardElevation="4dp"
                 android:layout_margin="8dp"
                 >
+
+<!--
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -84,8 +86,76 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/movie_name"
                     android:textAppearance="@style/TextAppearance.Header"
-                    style="@style/TextComponent.ItemRow"
-                    />
+                    style="@style/TextComponent.ItemRow" />
+
+                </LinearLayout>
+-->
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="@dimen/movie_details_poster_width"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/detail_poster_image"
+                            android:src="@drawable/quila"
+                            android:paddingTop="20dp" />
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="30dp"
+                            android:paddingTop="30dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="Movie Year"
+                                android:id="@+id/movie_year"
+                                android:paddingBottom="10dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Runtime"
+                                android:id="@+id/movie_runtime"
+                                android:paddingBottom="10dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="Ratings"
+                                android:id="@+id/movie_rating" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="Votes"
+                                android:id="@+id/movie_votes" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:text="Description"
+                        android:id="@+id/movie_desc"
+                        android:paddingTop="10dp" />
 
                 </LinearLayout>
 
@@ -116,7 +186,8 @@
                         android:fontFamily="sans-serif-light"
                         android:lineSpacingExtra="8dp"
                         android:textSize="16sp"
-                        android:id="@+id/movie_desc"
+                        android:text = "Trailer"
+                        android:id="@+id/movie_trailer"
                         />
 
                     <ListView
