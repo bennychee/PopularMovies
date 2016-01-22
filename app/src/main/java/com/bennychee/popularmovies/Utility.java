@@ -83,6 +83,15 @@ public class Utility {
             } else {
                 cValues.put(MovieContract.MovieEntry.COLUMN_IMAGE_URL, posterPath);
             }
+
+            //get the poster url
+            String backdropPosterPath = movie.getBackdropPath();
+            if (backdropPosterPath.equalsIgnoreCase("null")) {
+                cValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_IMAGE_URL,"placeholder");
+            } else {
+                cValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_IMAGE_URL, backdropPosterPath);
+            }
+
             //get the rating
             double voteAverage = movie.getVoteAverage();
             cValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, voteAverage);

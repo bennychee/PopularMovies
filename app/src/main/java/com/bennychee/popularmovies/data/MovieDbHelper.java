@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class MovieDbHelper extends SQLiteOpenHelper {
 
-    static final int DATABASE_VERSION = 4;
+    static final int DATABASE_VERSION = 5;
 
     static final String DATABASE_NAME = "movies.db";
 
@@ -25,6 +25,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 + MovieContract.MovieEntry.COLUMN_VOTE_COUNT + " INTEGER NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_IMAGE_URL + " TEXT NOT NULL, "
+                + MovieContract.MovieEntry.COLUMN_BACKDROP_IMAGE_URL + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_RUNTIME + " INTEGER, "
                 + MovieContract.MovieEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0, "

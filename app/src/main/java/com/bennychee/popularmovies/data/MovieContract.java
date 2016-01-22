@@ -41,10 +41,10 @@ public class MovieContract {
         public static final String COLUMN_VOTE_COUNT = "vote_count";
         public static final String COLUMN_DESCRIPTION = "desc";
         public static final String COLUMN_IMAGE_URL = "image_url";
+        public static final String COLUMN_BACKDROP_IMAGE_URL = "backdrop_image_url";
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_FAVORITE = "favorite"; // pseudo-boolean for favorite movie
-
 
         /**
          * This method creates a URI for addressing a movie according to its poster URL
