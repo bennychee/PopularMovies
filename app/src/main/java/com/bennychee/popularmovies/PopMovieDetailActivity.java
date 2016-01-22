@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 
+
 public class PopMovieDetailActivity extends AppCompatActivity {
 
     @Override
@@ -24,7 +25,10 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.pop_movie_detail_container, fragment)
                     .commit();
+
         }
+
+
     }
 
     @Override

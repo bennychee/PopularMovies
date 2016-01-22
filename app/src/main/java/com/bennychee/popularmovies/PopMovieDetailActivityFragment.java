@@ -5,16 +5,19 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,9 +37,11 @@ import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
 import com.commonsware.cwac.merge.MergeAdapter;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.Bind;
 import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,8 +69,12 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
 
     private LinearLayout mTitleContainer;
     private TextView mTitle;
+    private TextView mDescription;
+    private TextView mMovieName;
     private AppBarLayout mAppBarLayout;
-    private Toolbar mToolbar;
+    private CollapsingToolbarLayout mToolbar;
+    private ImageView posterImageView;
+    private ImageView backdropImageView;
 
     private static final int MOVIE_DETAIL_LOADER = 0;
     private static final int REVIEW_DETAIL_LOADER = 1;
@@ -89,6 +98,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
             MovieEntry.COLUMN_VOTE_COUNT,
             MovieEntry.COLUMN_DESCRIPTION,
             MovieEntry.COLUMN_IMAGE_URL,
+            MovieEntry.COLUMN_BACKDROP_IMAGE_URL,
             MovieEntry.COLUMN_POPULARITY,
             MovieEntry.COLUMN_RUNTIME,
             MovieEntry.COLUMN_FAVORITE
@@ -105,6 +115,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
 
         mergeAdapter  = new MergeAdapter();
         EventBus.getDefault().register(this);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
     @Override
@@ -118,6 +130,24 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_pop_movie_detail_activity, container, false);
+
+        mToolbar        = (CollapsingToolbarLayout) rootView.findViewById(R.id.details_toolbar_name);
+        mTitleContainer = (LinearLayout) rootView.findViewById(R.id.main_linearlayout_title);
+//        mAppBarLayout   = (AppBarLayout) rootView.findViewById(R.id.main_appbar);
+        mTitle          = (TextView) rootView.findViewById(R.id.main_textview_title);
+
+        mDescription = (TextView) rootView.findViewById(R.id.movie_desc);
+        mMovieName = (TextView) rootView.findViewById(R.id.movie_name);
+
+        posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);
+        backdropImageView = (ImageView) rootView.findViewById(R.id.detail_backdrop_image);
+
+//        mToolbar.setTitle("");
+//        mAppBarLayout.addOnOffsetChangedListener(this);
+
+//        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
+//        startAlphaAnimation(mTitle, 0, View.INVISIBLE);
+
         Intent intent = getActivity().getIntent();
         if (intent == null) {
             return null;
@@ -202,7 +232,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        MOVIE_DETAIL_COLUMNS,
+                        //MovieEntry.CONTENT_URI,
+                        null,
                         null,
                         null,
                         null
@@ -241,11 +272,54 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
                 break;
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
+                LoadMovieDetailView(data);
                 break;
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Review Adapter");
                 reviewAdapter.swapCursor(data);
                 break;
+        }
+    }
+
+    private void LoadMovieDetailView(Cursor data) {
+        if (data != null && data.moveToFirst()) {
+            String title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
+            Log.d(LOG_TAG, "Title: " + title);
+            mMovieName.setText(title);
+            mToolbar.setTitle(title);
+
+            String desc = data.getString(data.getColumnIndex(MovieEntry.COLUMN_DESCRIPTION));
+            mDescription.setText(desc);
+
+            String moviePoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_IMAGE_URL));
+            String backdropPoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_BACKDROP_IMAGE_URL));
+
+            Uri imageUri = Uri.parse(BuildConfig.IMAGE_BASE_URL).buildUpon()
+                    .appendPath(getActivity().getString(R.string.image_size_medium))
+                    .appendPath(moviePoster.substring(1))
+                    .build();
+
+            Uri backdropUri = Uri.parse(BuildConfig.IMAGE_BASE_URL).buildUpon()
+                    .appendPath(getActivity().getString(R.string.image_size_large))
+                    .appendPath(backdropPoster.substring(1))
+                    .build();
+
+/*
+            Picasso.with(getActivity())
+                    .load(imageUri)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.error)
+                    .tag(getActivity())
+                    .into(posterImageView);
+*/
+
+            Picasso.with(getActivity())
+                    .load(backdropUri)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.error)
+                    .tag(getActivity())
+                    .into(backdropImageView);
+
         }
     }
 
