@@ -53,7 +53,7 @@ import retrofit2.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PopMovieDetailActivityFragment extends Fragment implements  AppBarLayout.OnOffsetChangedListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class PopMovieDetailActivityFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = PopMovieDetailActivityFragment.class.getSimpleName();
 
@@ -148,12 +148,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
         mMovieRuntime = (TextView) rootView.findViewById(R.id.movie_runtime);
         mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
         mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
-
-//        mToolbar.setTitle("");
-//        mAppBarLayout.addOnOffsetChangedListener(this);
-
-//        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
-//        startAlphaAnimation(mTitle, 0, View.INVISIBLE);
 
         Intent intent = getActivity().getIntent();
         if (intent == null) {
@@ -329,7 +323,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
             mMovieRating.setText(getActivity().getString(R.string.ratings_ten, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE))));
             mVotes.setText(getActivity().getString(R.string.votes, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_COUNT))));
 
-
         }
     }
 
@@ -425,7 +418,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
                 EventBus.getDefault().post(new ReviewEvent(false));}
         });
-
     }
 
     private void MovieRuntime(final int movieId, String apiKey, MovieService service) {
@@ -454,6 +446,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
 
     }
 
+/*
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
         int maxScroll = appBarLayout.getTotalScrollRange();
@@ -505,4 +498,6 @@ public class PopMovieDetailActivityFragment extends Fragment implements  AppBarL
         alphaAnimation.setFillAfter(true);
         v.startAnimation(alphaAnimation);
     }
+*/
 }
+
