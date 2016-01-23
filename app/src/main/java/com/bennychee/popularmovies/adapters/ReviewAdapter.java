@@ -33,7 +33,17 @@ public class ReviewAdapter extends CursorAdapter {
         Log.d(LOG_TAG, "binding view: " + view.toString());
 
         TextView authorTextView = (TextView) view.findViewById(R.id.review_author);
-        TextView reviewTextView = (TextView) view.findViewById(R.id.review_content);
+        final TextView reviewTextView = (TextView) view.findViewById(R.id.review_content);
+        final TextView showAll = (TextView) view.findViewById(R.id.detail_read_all);
+
+        showAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAll.setVisibility(View.INVISIBLE);
+
+                reviewTextView.setMaxLines(Integer.MAX_VALUE);
+            }
+        });
 
         String author = cursor.getString(
                 cursor.getColumnIndex(
@@ -51,5 +61,6 @@ public class ReviewAdapter extends CursorAdapter {
 
         authorTextView.setText(author);
         reviewTextView.setText(review);
+        Log.d(LOG_TAG, "Author = " + author);
     }
 }

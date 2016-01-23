@@ -34,6 +34,8 @@ public class TrailerAdapter extends CursorAdapter {
     public void bindView(View view, final Context context, final Cursor cursor) {
         Log.d(LOG_TAG, "binding view: " + view.toString());
 
+
+
         TextView trailerNameTextView = (TextView) view.findViewById(R.id.trailer_name);
 
         String trailerName = cursor.getString(

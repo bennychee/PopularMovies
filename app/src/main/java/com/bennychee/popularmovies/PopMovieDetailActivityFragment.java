@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -78,6 +80,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
     private TextView mMovieYear;
     private TextView mMovieRating;
     private TextView mVotes;
+    private GridView trailerGridView;
+    private ListView reviewListView;
+
+
+    public TabLayout tabLayout;
 
     private static final int MOVIE_DETAIL_LOADER = 0;
     private static final int REVIEW_DETAIL_LOADER = 1;
@@ -90,8 +97,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
 
     private ListView mListView;
     MergeAdapter mergeAdapter;
-    TrailerAdapter trailerAdapter;
-    ReviewAdapter reviewAdapter;
+    private TrailerAdapter trailerAdapter;
+    private ReviewAdapter reviewAdapter;
 
     private static final String[] MOVIE_DETAIL_COLUMNS = {
             MovieEntry.TABLE_NAME + "." + MovieEntry._ID,
@@ -149,10 +156,16 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
         mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
 
+        trailerGridView = (GridView) rootView.findViewById(R.id.gridview_detail_trailer);
+        reviewListView = (ListView) rootView.findViewById(R.id.listview_detail_review);
+
+
         Intent intent = getActivity().getIntent();
         if (intent == null) {
             return null;
         }
+
+        // The CursorAdapter will take data from our cursor and populate the ListView.
 
         Cursor trailersCursor = getActivity().getContentResolver().query(
                 TrailerEntry.CONTENT_URI,
@@ -163,7 +176,9 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         );
 
         trailerAdapter = new TrailerAdapter(getActivity(), trailersCursor, 0);
-        mergeAdapter.addAdapter(trailerAdapter);
+//        mergeAdapter.addAdapter(trailerAdapter);
+        trailerGridView.setAdapter(trailerAdapter);
+
 
         Cursor reviewCursor = getActivity().getContentResolver().query(
                 ReviewEntry.CONTENT_URI,
@@ -174,11 +189,14 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         );
 
         reviewAdapter = new ReviewAdapter(getActivity(), reviewCursor, 0);
-        mergeAdapter.addAdapter(reviewAdapter);
+        //mergeAdapter.addAdapter(reviewAdapter);
+        reviewListView.setAdapter(reviewAdapter);
 
 
+/*
         mListView = (ListView) rootView.findViewById(R.id.listview_detail);
         mListView.setAdapter(mergeAdapter);
+*/
 
         return rootView;
     }
@@ -270,6 +288,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
                 trailerAdapter.swapCursor(data);
+                trailerAdapter.notifyDataSetChanged();
                 break;
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
@@ -278,6 +297,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Review Adapter");
                 reviewAdapter.swapCursor(data);
+                reviewAdapter.notifyDataSetChanged();
                 break;
         }
     }
@@ -332,7 +352,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Trailer Adapter");
                 trailerAdapter.swapCursor(null);
-                break;
+            break;
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
                 break;
