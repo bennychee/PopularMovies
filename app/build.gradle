@@ -22,6 +22,7 @@ android {
             it.buildConfigField 'String', 'API_BASE_URL', "\"http://api.themoviedb.org/3/\""
             it.buildConfigField 'String', 'IMAGE_BASE_URL', "\"http://image.tmdb.org/t/p/\""
             it.buildConfigField 'String', 'YOUTUBE_TRAILER_URL', "\"http://www.youtube.com/watch?v=\""
+            it.buildConfigField 'String', 'YOUTUBE_API_TOKEN', "$System.env.YOUTUBE_API_TOKEN"
         }
     }
 }

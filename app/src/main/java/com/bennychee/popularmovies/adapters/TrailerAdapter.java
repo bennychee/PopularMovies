@@ -14,12 +14,23 @@ import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.data.MovieContract;
 
+import com.google.android.youtube.player.YouTubeBaseActivity;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayer.ErrorReason;
+import com.google.android.youtube.player.YouTubePlayer.PlaybackEventListener;
+import com.google.android.youtube.player.YouTubePlayer.PlayerStateChangeListener;
+import com.google.android.youtube.player.YouTubePlayer.Provider;
+import com.google.android.youtube.player.YouTubePlayerView;
+
 /**
  * Created by B on 21/01/2016.
  */
-public class TrailerAdapter extends CursorAdapter {
+public class TrailerAdapter extends CursorAdapter implements YouTubePlayer.OnInitializedListener {
 
     public static final String LOG_TAG = TrailerAdapter.class.getSimpleName();
+
+    private String youtubeKey;
 
     public TrailerAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -47,20 +58,88 @@ public class TrailerAdapter extends CursorAdapter {
 
         trailerNameTextView.setText(trailerName);
 
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String youtubeKey = cursor.getString(
-                        cursor.getColumnIndex(
-                                MovieContract
-                                        .TrailerEntry
-                                        .COLUMN_YOUTUBE_KEY)
-                );
+        youtubeKey = cursor.getString(
+                cursor.getColumnIndex(
+                        MovieContract
+                            .TrailerEntry
+                            .COLUMN_YOUTUBE_KEY)
+        );
 
+/*
                 Uri youtubeUri = Uri.parse(BuildConfig.YOUTUBE_TRAILER_URL + youtubeKey);
                 Log.d(LOG_TAG, "Youtube URL: " + youtubeUri.toString());
-                //TODO Play youtube Video via intent
-            }
-        });
+*/
+
+        YouTubePlayerView youTubePlayerView = (YouTubePlayerView) view.findViewById(R.id.youtube_player);
+        youTubePlayerView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
     }
+
+    @Override
+    public void onInitializationSuccess(Provider provider, YouTubePlayer youTubePlayer, boolean b) {
+        /** add listeners to YouTubePlayer instance **/
+        youTubePlayer.setPlayerStateChangeListener(playerStateChangeListener);
+        youTubePlayer.setPlaybackEventListener(playbackEventListener);
+
+        /** Start buffering **/
+        if (!b) {
+            youTubePlayer.cueVideo(youtubeKey);
+        }
+    }
+
+    @Override
+    public void onInitializationFailure(Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+
+    }
+
+    private PlaybackEventListener playbackEventListener = new PlaybackEventListener() {
+
+        @Override
+        public void onBuffering(boolean arg0) {
+        }
+
+        @Override
+        public void onPaused() {
+        }
+
+        @Override
+        public void onPlaying() {
+        }
+
+        @Override
+        public void onSeekTo(int arg0) {
+        }
+
+        @Override
+        public void onStopped() {
+        }
+
+    };
+
+    private PlayerStateChangeListener playerStateChangeListener = new PlayerStateChangeListener() {
+
+        @Override
+        public void onAdStarted() {
+        }
+
+        @Override
+        public void onError(ErrorReason arg0) {
+        }
+
+        @Override
+        public void onLoaded(String arg0) {
+        }
+
+        @Override
+        public void onLoading() {
+        }
+
+        @Override
+        public void onVideoEnded() {
+        }
+
+        @Override
+        public void onVideoStarted() {
+        }
+    };
+
 }
