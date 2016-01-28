@@ -1,5 +1,6 @@
 package com.bennychee.popularmovies;
 
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bennychee.popularmovies.adapters.ReviewAdapter;
 import com.bennychee.popularmovies.adapters.TrailerAdapter;
@@ -31,6 +34,7 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
 import com.bennychee.popularmovies.api.models.review.Result;
+import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
@@ -39,6 +43,10 @@ import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
 import com.commonsware.cwac.merge.MergeAdapter;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+import com.google.android.youtube.player.YouTubePlayerView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -55,7 +63,7 @@ import retrofit2.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PopMovieDetailActivityFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor> {
+public class PopMovieDetailActivityFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>, YouTubePlayer.OnInitializedListener {
 
     private static final String LOG_TAG = PopMovieDetailActivityFragment.class.getSimpleName();
 
@@ -83,6 +91,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
     private GridView trailerGridView;
     private ListView reviewListView;
 
+
+    private String youtubeKey;
 
     public TabLayout tabLayout;
 
@@ -289,6 +299,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
                 Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
                 trailerAdapter.swapCursor(data);
                 trailerAdapter.notifyDataSetChanged();
+                LoadTrailer(data);
                 break;
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
@@ -300,6 +311,34 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
                 reviewAdapter.notifyDataSetChanged();
                 break;
         }
+    }
+
+    private void LoadTrailer(Cursor data) {
+        data.moveToFirst();
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+
+        YouTubePlayerSupportFragment youtubeFragment = (YouTubePlayerSupportFragment) fm.findFragmentById(R.id.youtube_player);
+
+        youtubeKey = data.getString(
+                data.getColumnIndex(
+                        MovieContract
+                                .TrailerEntry
+                                .COLUMN_YOUTUBE_KEY)
+        );
+
+/*
+                Uri youtubeUri = Uri.parse(BuildConfig.YOUTUBE_TRAILER_URL + youtubeKey);
+                Log.d(LOG_TAG, "Youtube URL: " + youtubeUri.toString());
+*/
+
+        youtubeFragment.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+
+/*
+        YouTubePlayerView youTubePlayerView = (YouTubePlayerView) view.findViewById(R.id.youtube_player);
+        youTubePlayerView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+*/
+
+
     }
 
     private void LoadMovieDetailView(Cursor data) {
@@ -464,6 +503,22 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             }
         });
 
+    }
+
+    @Override
+    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
+        Log.d(LOG_TAG, "Youtube play initialized.");
+        youTubePlayer.cueVideo(youtubeKey);
+    }
+
+    @Override
+    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+        if (youTubeInitializationResult.isUserRecoverableError()) {
+            youTubeInitializationResult.getErrorDialog(getActivity(), 1).show();
+        } else {
+//            String errorMessage = String.format(getString(R.string.youtube_error), youTubeInitializationResult.toString());
+            //Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+        }
     }
 
 /*

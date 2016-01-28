@@ -13,6 +13,8 @@
     <color name="primary">#785447</color>
     <color name="primaryDark">#5B3F36</color>
 
+    <color name="transparent_black">#E6000000</color>
+
     <color name="orange">#FA0</color>
 
 </resources>
