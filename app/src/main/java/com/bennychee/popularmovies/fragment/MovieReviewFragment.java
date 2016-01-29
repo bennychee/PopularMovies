@@ -96,7 +96,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     private static final int REVIEW_DETAIL_LOADER = 1;
     private static final int TRAILER_DETAIL_LOADER = 2;
 
-    static final String DETAIL_URI = "URI";
+    public static final String DETAIL_URI = "URI";
 
     private Uri mUri;
     private int movieId;

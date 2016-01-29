@@ -59,7 +59,7 @@ import retrofit2.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MovieTrailerFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>, YouTubePlayer.OnInitializedListener {
+public class MovieTrailerFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String LOG_TAG = MovieTrailerFragment.class.getSimpleName();
 
@@ -84,7 +84,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     private TextView mMovieYear;
     private TextView mMovieRating;
     private TextView mVotes;
-    private GridView trailerGridView;
+    private ListView trailerListView;
     private ListView reviewListView;
 
 
@@ -96,7 +96,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     private static final int REVIEW_DETAIL_LOADER = 1;
     private static final int TRAILER_DETAIL_LOADER = 2;
 
-    static final String DETAIL_URI = "URI";
+    public static final String DETAIL_URI = "URI";
 
     private Uri mUri;
     private int movieId;
@@ -145,7 +145,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         }
 
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_pop_movie_detail_activity, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_movie_trailer, container, false);
 
         mToolbar        = (CollapsingToolbarLayout) rootView.findViewById(R.id.details_toolbar_name);
         mTitleContainer = (LinearLayout) rootView.findViewById(R.id.main_linearlayout_title);
@@ -162,7 +162,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
         mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
 
-        trailerGridView = (GridView) rootView.findViewById(R.id.gridview_detail_trailer);
+        trailerListView = (ListView) rootView.findViewById(R.id.listview_trailer);
         reviewListView = (ListView) rootView.findViewById(R.id.listview_detail_review);
 
 
@@ -183,9 +183,10 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
         trailerAdapter = new TrailerAdapter(getActivity(), trailersCursor, 0);
 //        mergeAdapter.addAdapter(trailerAdapter);
-        trailerGridView.setAdapter(trailerAdapter);
+        trailerListView.setAdapter(trailerAdapter);
 
 
+/*
         Cursor reviewCursor = getActivity().getContentResolver().query(
                 ReviewEntry.CONTENT_URI,
                 null,
@@ -197,6 +198,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         reviewAdapter = new ReviewAdapter(getActivity(), reviewCursor, 0);
         //mergeAdapter.addAdapter(reviewAdapter);
         reviewListView.setAdapter(reviewAdapter);
+*/
 
 
 /*
@@ -207,6 +209,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         return rootView;
     }
 
+/*
     public void onEvent(RuntimeEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the movie detail loader!");
@@ -215,6 +218,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
         }
     }
+*/
 
     public void onEvent(TrailerEvent event) {
         if (event.isRetrofitCompleted) {
@@ -225,6 +229,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         }
     }
 
+/*
     public void onEvent(ReviewEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the review loader!");
@@ -233,6 +238,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
         }
     }
+*/
 
     @Override
     public void onDestroy() {
@@ -252,7 +258,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri) {
-            if (id == MOVIE_DETAIL_LOADER) {
+/*            if (id == MOVIE_DETAIL_LOADER) {
                 Log.d(LOG_TAG, "Movie Details Loader Created");
                 return new CursorLoader(
                         getActivity(),
@@ -273,7 +279,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
                         new String[]{String.valueOf(movieId)},
                         null
                 );
-            } else if (id == TRAILER_DETAIL_LOADER) {
+            } else */if (id == TRAILER_DETAIL_LOADER) {
                 Log.d(LOG_TAG, "Trailer Loader Created");
                 return new CursorLoader(
                         getActivity(),
@@ -294,9 +300,12 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
                 trailerAdapter.swapCursor(data);
+/*
                 trailerAdapter.notifyDataSetChanged();
                 LoadTrailer(data);
+*/
                 break;
+/*
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                 LoadMovieDetailView(data);
@@ -306,9 +315,11 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
                 reviewAdapter.swapCursor(data);
                 reviewAdapter.notifyDataSetChanged();
                 break;
+*/
         }
     }
 
+/*
     private void LoadTrailer(Cursor data) {
         data.moveToFirst();
         FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -321,17 +332,21 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
                                 .COLUMN_YOUTUBE_KEY)
         );
 
+*/
 /*
                 Uri youtubeUri = Uri.parse(BuildConfig.YOUTUBE_TRAILER_URL + youtubeKey);
                 Log.d(LOG_TAG, "Youtube URL: " + youtubeUri.toString());
-*/
+*//*
+
 
         //youtubeFragment.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
 
+*/
 /*
         YouTubePlayerView youTubePlayerView = (YouTubePlayerView) view.findViewById(R.id.youtube_player);
         youTubePlayerView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
-*/
+*//*
+
 
 
     }
@@ -379,6 +394,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
         }
     }
+*/
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -387,6 +403,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
                 Log.d(LOG_TAG, "Inside onLoaderReset - Trailer Adapter");
                 trailerAdapter.swapCursor(null);
             break;
+/*
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
                 break;
@@ -394,8 +411,10 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
                 Log.d(LOG_TAG, "Inside onLoaderReset - Review Adapter");
                 reviewAdapter.swapCursor(null);
                 break;
+*/
         }
     }
+
 
 
     private void LoadMovieDetails (final int movieId) {
@@ -415,16 +434,21 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
             final MovieService service = retrofit.create(MovieService.class);
 
+/*
             MovieRuntime(movieId, apiKey, service);
             MovieReview(movieId, apiKey, service);
+*/
             MovieTrailers(movieId, apiKey, service);
         } else {
             Log.d(LOG_TAG, "Info in DB. No Retrofit callback required");
             EventBus.getDefault().post(new TrailerEvent(true));
+/*
             EventBus.getDefault().post(new ReviewEvent(true));
             EventBus.getDefault().post(new RuntimeEvent(true));
+*/
         }
     }
+
 
     private void MovieTrailers(final int movieId, final String apiKey, final MovieService service) {
         Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
@@ -451,6 +475,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
     }
 
+/*
     private void MovieReview(final int movieId, String apiKey, MovieService service) {
         Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId, apiKey);
         movieReviewsCall.enqueue(new Callback<MovieReviews>() {
@@ -474,7 +499,9 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
             }
         });
     }
+*/
 
+/*
     private void MovieRuntime(final int movieId, String apiKey, MovieService service) {
         Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
         movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
@@ -500,7 +527,9 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         });
 
     }
+*/
 
+/*
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
         Log.d(LOG_TAG, "Youtube play initialized.");
@@ -516,6 +545,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
             //Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
     }
+*/
 
 /*
     @Override

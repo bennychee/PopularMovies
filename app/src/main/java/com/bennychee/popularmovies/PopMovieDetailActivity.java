@@ -32,6 +32,8 @@ public class PopMovieDetailActivity extends AppCompatActivity {
 
             Bundle arguments = new Bundle();
             arguments.putParcelable(MovieDetailsFragment.DETAIL_URI, getIntent().getData());
+            arguments.putParcelable(MovieTrailerFragment.DETAIL_URI, getIntent().getData());
+            arguments.putParcelable(MovieReviewFragment.DETAIL_URI, getIntent().getData());
 
 /*
             PopMovieDetailActivityFragment fragment = new PopMovieDetailActivityFragment();
@@ -110,9 +112,9 @@ public class PopMovieDetailActivity extends AppCompatActivity {
                             .commit();*/
                     return movieDetailsFragment;
                 case 1:
-                    return new MovieTrailerFragment();
+                    return movieTrailerFragment;
                 case 2:
-                    return new MovieReviewFragment();
+                    return movieReviewFragment;
                 default:
                     return null;
             }
