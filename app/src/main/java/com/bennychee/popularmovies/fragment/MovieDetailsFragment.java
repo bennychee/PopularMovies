@@ -1,4 +1,4 @@
-package com.bennychee.popularmovies;
+package com.bennychee.popularmovies.fragment;
 
 
 import android.content.Intent;
@@ -14,31 +14,29 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.bennychee.popularmovies.BuildConfig;
+import com.bennychee.popularmovies.R;
+import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.ReviewAdapter;
 import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
+import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.api.models.review.Result;
-import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
-import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
-
+import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
@@ -46,12 +44,10 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.android.youtube.player.YouTubePlayerView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import butterknife.Bind;
 import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,9 +59,9 @@ import retrofit2.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PopMovieDetailActivityFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>, YouTubePlayer.OnInitializedListener {
+public class MovieDetailsFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String LOG_TAG = PopMovieDetailActivityFragment.class.getSimpleName();
+    private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
     // CooridnatorLayout sample
     // https://github.com/saulmm/CoordinatorBehaviorExample
@@ -92,7 +88,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
     private ListView reviewListView;
 
 
-    private String youtubeKey;
+    private String ey;
 
     public TabLayout tabLayout;
 
@@ -100,7 +96,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
     private static final int REVIEW_DETAIL_LOADER = 1;
     private static final int TRAILER_DETAIL_LOADER = 2;
 
-    static final String DETAIL_URI = "URI";
+    public static final String DETAIL_URI = "URI";
 
     private Uri mUri;
     private int movieId;
@@ -124,7 +120,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             MovieEntry.COLUMN_FAVORITE
     };
 
-    public PopMovieDetailActivityFragment() {
+    public MovieDetailsFragment() {
         // Required empty public constructor
         setHasOptionsMenu(true);
     }
@@ -145,11 +141,12 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mUri = arguments.getParcelable(PopMovieDetailActivityFragment.DETAIL_URI);
+            mUri = arguments.getParcelable(MovieDetailsFragment.DETAIL_URI);
         }
 
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_pop_movie_detail_activity, container, false);
+//        View rootView = inflater.inflate(R.layout.fragment_pop_movie_detail_activity, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
         mToolbar        = (CollapsingToolbarLayout) rootView.findViewById(R.id.details_toolbar_name);
         mTitleContainer = (LinearLayout) rootView.findViewById(R.id.main_linearlayout_title);
@@ -166,8 +163,10 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
         mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
 
+/*
         trailerGridView = (GridView) rootView.findViewById(R.id.gridview_detail_trailer);
         reviewListView = (ListView) rootView.findViewById(R.id.listview_detail_review);
+*/
 
 
         Intent intent = getActivity().getIntent();
@@ -177,6 +176,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
 
         // The CursorAdapter will take data from our cursor and populate the ListView.
 
+/*
         Cursor trailersCursor = getActivity().getContentResolver().query(
                 TrailerEntry.CONTENT_URI,
                 null,
@@ -202,6 +202,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         //mergeAdapter.addAdapter(reviewAdapter);
         reviewListView.setAdapter(reviewAdapter);
 
+*/
 
 /*
         mListView = (ListView) rootView.findViewById(R.id.listview_detail);
@@ -220,6 +221,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         }
     }
 
+/*
     public void onEvent(TrailerEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the trailer loader!");
@@ -237,6 +239,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
 
         }
     }
+*/
 
     @Override
     public void onDestroy() {
@@ -267,7 +270,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
                         null,
                         null
                 );
-            } else if (id == REVIEW_DETAIL_LOADER) {
+            } /*else if (id == REVIEW_DETAIL_LOADER) {
                 Log.d(LOG_TAG, "Review Loader Created");
                 return new CursorLoader(
                         getActivity(),
@@ -287,7 +290,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
                         new String[]{String.valueOf(movieId)},
                         null
                 );
-            }
+            }*/
         }
         return null;
     }
@@ -295,22 +298,60 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
+/*
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
                 trailerAdapter.swapCursor(data);
                 trailerAdapter.notifyDataSetChanged();
+                LoadTrailer(data);
                 break;
+*/
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                 LoadMovieDetailView(data);
                 break;
+/*
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Review Adapter");
                 reviewAdapter.swapCursor(data);
                 reviewAdapter.notifyDataSetChanged();
                 break;
+*/
         }
     }
+
+/*
+    private void LoadTrailer(Cursor data) {
+        data.moveToFirst();
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+
+        YouTubePlayerSupportFragment youtubeFragment = (YouTubePlayerSupportFragment) fm.findFragmentById(R.id.youtube_player);
+
+        youtubeKey = data.getString(
+                data.getColumnIndex(
+                        TrailerEntry
+                                .COLUMN_YOUTUBE_KEY)
+        );
+
+*/
+/*
+                Uri youtubeUri = Uri.parse(BuildConfig.YOUTUBE_TRAILER_URL + youtubeKey);
+                Log.d(LOG_TAG, "Youtube URL: " + youtubeUri.toString());
+*//*
+
+
+        youtubeFragment.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+
+*/
+/*
+        YouTubePlayerView youTubePlayerView = (YouTubePlayerView) view.findViewById(R.id.youtube_player);
+        youTubePlayerView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+*//*
+
+
+
+    }
+*/
 
     private void LoadMovieDetailView(Cursor data) {
         if (data != null && data.moveToFirst()) {
@@ -359,17 +400,21 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         switch (loader.getId()) {
+/*
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Trailer Adapter");
                 trailerAdapter.swapCursor(null);
             break;
+*/
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
                 break;
+/*
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Review Adapter");
                 reviewAdapter.swapCursor(null);
                 break;
+*/
         }
     }
 
@@ -392,16 +437,19 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             final MovieService service = retrofit.create(MovieService.class);
 
             MovieRuntime(movieId, apiKey, service);
-            MovieReview(movieId, apiKey, service);
-            MovieTrailers(movieId, apiKey, service);
+/*            MovieReview(movieId, apiKey, service);
+            MovieTrailers(movieId, apiKey, service);*/
         } else {
             Log.d(LOG_TAG, "Info in DB. No Retrofit callback required");
+            EventBus.getDefault().post(new RuntimeEvent(true));
+/*
             EventBus.getDefault().post(new TrailerEvent(true));
             EventBus.getDefault().post(new ReviewEvent(true));
-            EventBus.getDefault().post(new RuntimeEvent(true));
+*/
         }
     }
 
+/*
     private void MovieTrailers(final int movieId, final String apiKey, final MovieService service) {
         Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
@@ -446,9 +494,11 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
-                EventBus.getDefault().post(new ReviewEvent(false));}
+                EventBus.getDefault().post(new ReviewEvent(false));
+            }
         });
     }
+*/
 
     private void MovieRuntime(final int movieId, String apiKey, MovieService service) {
         Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
@@ -476,6 +526,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
 
     }
 
+/*
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
         Log.d(LOG_TAG, "Youtube play initialized.");
@@ -491,6 +542,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             //Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         }
     }
+*/
 
 /*
     @Override

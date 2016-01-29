@@ -1,4 +1,4 @@
-package com.bennychee.popularmovies;
+package com.bennychee.popularmovies.fragment;
 
 
 import android.content.Intent;
@@ -14,31 +14,29 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.bennychee.popularmovies.BuildConfig;
+import com.bennychee.popularmovies.R;
+import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.ReviewAdapter;
 import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
+import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.api.models.review.Result;
-import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
-import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
-
+import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
@@ -46,12 +44,10 @@ import com.commonsware.cwac.merge.MergeAdapter;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.android.youtube.player.YouTubePlayerView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import butterknife.Bind;
 import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,9 +59,9 @@ import retrofit2.Retrofit;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PopMovieDetailActivityFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>, YouTubePlayer.OnInitializedListener {
+public class MovieReviewFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>, YouTubePlayer.OnInitializedListener {
 
-    private static final String LOG_TAG = PopMovieDetailActivityFragment.class.getSimpleName();
+    private static final String LOG_TAG = MovieReviewFragment.class.getSimpleName();
 
     // CooridnatorLayout sample
     // https://github.com/saulmm/CoordinatorBehaviorExample
@@ -124,7 +120,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             MovieEntry.COLUMN_FAVORITE
     };
 
-    public PopMovieDetailActivityFragment() {
+    public MovieReviewFragment() {
         // Required empty public constructor
         setHasOptionsMenu(true);
     }
@@ -145,7 +141,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mUri = arguments.getParcelable(PopMovieDetailActivityFragment.DETAIL_URI);
+            mUri = arguments.getParcelable(MovieReviewFragment.DETAIL_URI);
         }
 
         // Inflate the layout for this fragment
@@ -312,6 +308,7 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
         }
     }
 
+
     private void LoadMovieDetailView(Cursor data) {
         if (data != null && data.moveToFirst()) {
             String title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
@@ -446,7 +443,8 @@ public class PopMovieDetailActivityFragment extends Fragment implements  LoaderM
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
-                EventBus.getDefault().post(new ReviewEvent(false));}
+                EventBus.getDefault().post(new ReviewEvent(false));
+            }
         });
     }
 
