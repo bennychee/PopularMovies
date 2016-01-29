@@ -1,6 +1,7 @@
 package com.bennychee.popularmovies.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
+import com.bennychee.popularmovies.YoutubeLightBox;
 import com.bennychee.popularmovies.data.MovieContract;
 
 import com.google.android.youtube.player.YouTubeBaseActivity;
@@ -85,7 +87,10 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
         youTubeThumbnailView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                final Intent lightboxIntent = new Intent(context, YoutubeLightBox.class);
+                lightboxIntent.putExtra(YoutubeLightBox.KEY_VIDEO_ID, youtubeKey);
+                context.startActivity(lightboxIntent);
+                youTubeThumbnailLoader.release();
             }
         });
 /*
