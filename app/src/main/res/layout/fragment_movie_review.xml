@@ -5,11 +5,19 @@
         android:layout_marginBottom="16dp"
         android:orientation="vertical">
 
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/listview_review"
-            android:divider="@null">
-        </ListView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/review_text"
+        android:visibility="gone">
+    </TextView>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/listview_review"
+        android:divider="@null">
+    </ListView>
 
 </LinearLayout>

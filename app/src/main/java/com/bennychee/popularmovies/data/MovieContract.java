@@ -60,7 +60,7 @@ public class MovieContract {
 
         /**
          * Build a Uri for a record of the table, using the ID
-         *
+
          * @param id The ID of the record
          * @return A new Uri with the given ID appended to the end of the path
          */

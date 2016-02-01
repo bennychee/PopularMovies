@@ -279,6 +279,59 @@ public class Utility {
     }
 
     /**
+     * Fetches the trailer from the database, as fetched from the cloud service
+     *
+     * @param context  The application context
+     * @param movieUri The URI of the movie, pointing in the movie table
+     * @return The runtime, or -1 if something goes wrong
+     */
+    public static int checkTrailerFromUri(Context context, Uri movieUri) {
+        long _id = MovieContract.MovieEntry.getIdFromUri(movieUri);
+
+        Cursor c = context.getContentResolver().query(
+                MovieContract.TrailerEntry.CONTENT_URI,
+                new String[]{MovieContract.TrailerEntry.COLUMN_MOVIE_ID},
+                MovieContract.TrailerEntry.COLUMN_MOVIE_ID + " = ?",
+                new String[]{String.valueOf(_id)},
+                null);
+
+        if (c.moveToFirst()) {
+            int trailer = c.getColumnIndex(MovieContract.TrailerEntry.COLUMN_MOVIE_ID);
+            Log.d(LOG_TAG, "Trailer check: " + c.getInt(trailer));
+            return c.getInt(trailer);
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Fetches the review from the database, as fetched from the cloud service
+     *
+     * @param context  The application context
+     * @param movieUri The URI of the movie, pointing in the movie table
+     * @return The runtime, or -1 if something goes wrong
+     */
+    public static int checkReviewFromUri(Context context, Uri movieUri) {
+        long _id = MovieContract.MovieEntry.getIdFromUri(movieUri);
+
+        Cursor c = context.getContentResolver().query(
+                MovieContract.ReviewEntry.CONTENT_URI,
+                new String[]{MovieContract.ReviewEntry.COLUMN_MOVIE_ID},
+                MovieContract.ReviewEntry.COLUMN_MOVIE_ID + " = ?",
+                new String[]{String.valueOf(_id)},
+                null);
+
+        if (c.moveToFirst()) {
+            int review = c.getColumnIndex(MovieContract.ReviewEntry.COLUMN_MOVIE_ID);
+            Log.d(LOG_TAG, "Review check: " + c.getInt(review));
+            return c.getInt(review);
+        } else {
+            return -1;
+        }
+    }
+
+
+    /**
      * Fetches the runtime from the database, as fetched from the cloud service
      *
      * @param context  The application context
@@ -303,5 +356,4 @@ public class Utility {
             return -1;
         }
     }
-
 }

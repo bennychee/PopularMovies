@@ -56,7 +56,6 @@ public class YoutubeLightBox extends YouTubeBaseActivity implements YouTubePlaye
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.activity_youtube_lightbox);
-
         final RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout_youtube_activity);
         relativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override

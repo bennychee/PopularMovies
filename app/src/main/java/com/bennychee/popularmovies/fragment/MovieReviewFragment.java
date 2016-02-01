@@ -1,10 +1,12 @@
 package com.bennychee.popularmovies.fragment;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.RecoverySystem;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
@@ -34,6 +36,7 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
+import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
 import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
@@ -45,6 +48,8 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -86,11 +91,8 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     private TextView mVotes;
     private GridView trailerGridView;
     private ListView reviewListView;
+    private TextView reviewText;
 
-
-    private String youtubeKey;
-
-    public TabLayout tabLayout;
 
     private static final int MOVIE_DETAIL_LOADER = 0;
     private static final int REVIEW_DETAIL_LOADER = 1;
@@ -101,8 +103,11 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     private Uri mUri;
     private int movieId;
 
-    private ListView mListView;
-    MergeAdapter mergeAdapter;    private ReviewAdapter reviewAdapter;
+    private int count = 0;
+
+    private ProgressDialog progressBar;
+
+    private ReviewAdapter reviewAdapter;
 
     private static final String[] MOVIE_DETAIL_COLUMNS = {
             MovieEntry.TABLE_NAME + "." + MovieEntry._ID,
@@ -126,10 +131,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mergeAdapter  = new MergeAdapter();
         EventBus.getDefault().register(this);
-
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
@@ -162,29 +164,22 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
 
         reviewListView = (ListView) rootView.findViewById(R.id.listview_review);
 
+        reviewText = (TextView) rootView.findViewById(R.id.review_text);
+
+/*
+        progressBar = new ProgressDialog(rootView.getContext());
+        progressBar.setCancelable(true);
+        progressBar.setMessage("Getting Reviews");
+        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressBar.setProgress(0);
+        progressBar.setMax(100);
+        progressBar.show();
+*/
+
         Intent intent = getActivity().getIntent();
         if (intent == null) {
             return null;
         }
-
-        // The CursorAdapter will take data from our cursor and populate the ListView.
-
-/*
-        Cursor trailersCursor = getActivity().getContentResolver().query(
-                TrailerEntry.CONTENT_URI,
-                null,
-                TrailerEntry.COLUMN_MOVIE_ID + "=?",
-                new String[]{String.valueOf(movieId)},
-                null
-        );
-
-*/
-/*
-        trailerAdapter = new TrailerAdapter(getActivity(), trailersCursor, 0);
-//        mergeAdapter.addAdapter(trailerAdapter);
-        trailerGridView.setAdapter(trailerAdapter);
-*/
-
 
         Cursor reviewCursor = getActivity().getContentResolver().query(
                 ReviewEntry.CONTENT_URI,
@@ -197,37 +192,14 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         reviewAdapter = new ReviewAdapter(getActivity(), reviewCursor, 0);
         reviewListView.setAdapter(reviewAdapter);
 
-
-/*
-        mListView = (ListView) rootView.findViewById(R.id.listview_detail);
-        mListView.setAdapter(mergeAdapter);
-*/
-
         return rootView;
-    }
-
-    public void onEvent(RuntimeEvent event) {
-        if (event.isRetrofitCompleted) {
-            Log.d(LOG_TAG, "Retrofit done, load the movie detail loader!");
-            getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
-        } else {
-
-        }
-    }
-
-    public void onEvent(TrailerEvent event) {
-        if (event.isRetrofitCompleted) {
-            Log.d(LOG_TAG, "Retrofit done, load the trailer loader!");
-            getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
-        } else {
-
-        }
     }
 
     public void onEvent(ReviewEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the review loader!");
             getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
+            progressBar.dismiss();
         } else {
 
         }
@@ -243,7 +215,8 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
         movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-        LoadMovieDetails(movieId);
+//        LoadMovieDetails(movieId);
+        getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
 
         super.onActivityCreated(savedInstanceState);
     }
@@ -251,18 +224,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (null != mUri) {
-/*            if (id == MOVIE_DETAIL_LOADER) {
-                Log.d(LOG_TAG, "Movie Details Loader Created");
-                return new CursorLoader(
-                        getActivity(),
-                        mUri,
-                        //MovieEntry.CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
-                );
-            } else */if (id == REVIEW_DETAIL_LOADER) {
+            if (id == REVIEW_DETAIL_LOADER) {
                 Log.d(LOG_TAG, "Review Loader Created");
                 return new CursorLoader(
                         getActivity(),
@@ -272,17 +234,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
                         new String[]{String.valueOf(movieId)},
                         null
                 );
-            } /*else if (id == TRAILER_DETAIL_LOADER) {
-                Log.d(LOG_TAG, "Trailer Loader Created");
-                return new CursorLoader(
-                        getActivity(),
-                        TrailerEntry.CONTENT_URI,
-                        null,
-                        TrailerEntry.COLUMN_MOVIE_ID + "=?",
-                        new String[]{String.valueOf(movieId)},
-                        null
-                );
-            }*/
+            }
         }
         return null;
     }
@@ -290,82 +242,23 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
-/*
-            case TRAILER_DETAIL_LOADER:
-                Log.d(LOG_TAG, "Inside onLoadFinished - Trailer Adapter");
-                trailerAdapter.swapCursor(data);
-                trailerAdapter.notifyDataSetChanged();
-                break;
-            case MOVIE_DETAIL_LOADER:
-                Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
-                LoadMovieDetailView(data);
-                break;
-*/
-            case REVIEW_DETAIL_LOADER:
+        case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Review Adapter");
-                reviewAdapter.swapCursor(data);
-                reviewAdapter.notifyDataSetChanged();
+                if (data != null && data.moveToFirst()) {
+//                    reviewText.setVisibility(TextView.INVISIBLE);
+                    reviewAdapter.swapCursor(data);
+                } else {
+                    Log.d(LOG_TAG, "No Reviews");
+                    reviewText.setVisibility(TextView.VISIBLE);
+                    reviewText.setText("No Reviews");
+                }
                 break;
-        }
-    }
-
-
-    private void LoadMovieDetailView(Cursor data) {
-        if (data != null && data.moveToFirst()) {
-            String title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
-            Log.d(LOG_TAG, "Title: " + title);
-            mToolbar.setTitle(title);
-
-            String desc = data.getString(data.getColumnIndex(MovieEntry.COLUMN_DESCRIPTION));
-            mDescription.setText(desc);
-
-            String moviePoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_IMAGE_URL));
-            String backdropPoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_BACKDROP_IMAGE_URL));
-
-            Uri imageUri = Uri.parse(BuildConfig.IMAGE_BASE_URL).buildUpon()
-                    .appendPath(getActivity().getString(R.string.image_size_medium))
-                    .appendPath(moviePoster.substring(1))
-                    .build();
-
-            Uri backdropUri = Uri.parse(BuildConfig.IMAGE_BASE_URL).buildUpon()
-                    .appendPath(getActivity().getString(R.string.image_size_large))
-                    .appendPath(backdropPoster.substring(1))
-                    .build();
-
-            Picasso.with(getActivity())
-                    .load(imageUri)
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.error)
-                    .tag(getActivity())
-                    .into(posterImageView);
-
-            Picasso.with(getActivity())
-                    .load(backdropUri)
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.error)
-                    .tag(getActivity())
-                    .into(backdropImageView);
-
-            mMovieYear.setText(Utility.getReleaseYear(data.getString(data.getColumnIndex(MovieEntry.COLUMN_RELEASE_DATE))));
-            mMovieRuntime.setText(getActivity().getString(R.string.runtime_mins, data.getString(data.getColumnIndex(MovieEntry.COLUMN_RUNTIME))));
-            mMovieRating.setText(getActivity().getString(R.string.ratings_ten, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE))));
-            mVotes.setText(getActivity().getString(R.string.votes, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_COUNT))));
-
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         switch (loader.getId()) {
-/*
-            case TRAILER_DETAIL_LOADER:
-                Log.d(LOG_TAG, "Inside onLoaderReset - Trailer Adapter");
-                trailerAdapter.swapCursor(null);
-            break;
-            case MOVIE_DETAIL_LOADER:
-                Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
-                break;
-*/
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Review Adapter");
                 reviewAdapter.swapCursor(null);
@@ -373,11 +266,10 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         }
     }
 
-
     private void LoadMovieDetails (final int movieId) {
 
         // check runtime from DB for movie ID so that if it is found in DB, no retrieval required
-        if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+        if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
             String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
             String baseUrl = BuildConfig.API_BASE_URL;
 
@@ -390,48 +282,14 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
                     .build();
 
             final MovieService service = retrofit.create(MovieService.class);
-
-/*
-            MovieRuntime(movieId, apiKey, service);
-            MovieTrailers(movieId, apiKey, service);
-*/
             MovieReview(movieId, apiKey, service);
         } else {
             Log.d(LOG_TAG, "Info in DB. No Retrofit callback required");
-//            EventBus.getDefault().post(new TrailerEvent(true));
             EventBus.getDefault().post(new ReviewEvent(true));
-//            EventBus.getDefault().post(new RuntimeEvent(true));
         }
     }
 
-/*
-    private void MovieTrailers(final int movieId, final String apiKey, final MovieService service) {
-        Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
-        movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
-            @Override
-            public void onResponse(Response<MovieTrailers> response) {
-                Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
-                if (!response.isSuccess()) {
-                    Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
-                } else {
-                    List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
-                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
-                    Utility.storeTrailerList(getContext(), movieId, trailersResultList);
-                    EventBus.getDefault().post(new TrailerEvent(true));
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
-                EventBus.getDefault().post(new TrailerEvent(false));
-            }
-        });
-
-    }
-
-*/
-    private void MovieReview(final int movieId, String apiKey, MovieService service) {
+    private void MovieReview(final int movieId, final String apiKey, final MovieService service) {
         Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId, apiKey);
         movieReviewsCall.enqueue(new Callback<MovieReviews>() {
             @Override
@@ -439,6 +297,12 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
                 Log.d(LOG_TAG, "Movie Reviews Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
+                    if (count < 5) {
+                        //Retry 5 times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + count);
+                        MovieReview(movieId, apiKey, service);
+                        count++;
+                    }
                 } else {
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());

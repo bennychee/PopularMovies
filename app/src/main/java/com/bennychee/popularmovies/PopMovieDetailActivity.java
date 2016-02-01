@@ -12,7 +12,7 @@ import android.view.Menu;
 import com.bennychee.popularmovies.fragment.MovieDetailsFragment;
 import com.bennychee.popularmovies.fragment.MovieReviewFragment;
 import com.bennychee.popularmovies.fragment.MovieTrailerFragment;
-
+import com.bennychee.popularmovies.fragment.LoadMovieRetrofitFragment;
 
 public class PopMovieDetailActivity extends AppCompatActivity {
 
@@ -20,6 +20,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
     MovieDetailsFragment movieDetailsFragment;
     MovieReviewFragment movieReviewFragment;
     MovieTrailerFragment movieTrailerFragment;
+    LoadMovieRetrofitFragment loadMovieRetrofitFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +35,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             arguments.putParcelable(MovieDetailsFragment.DETAIL_URI, getIntent().getData());
             arguments.putParcelable(MovieTrailerFragment.DETAIL_URI, getIntent().getData());
             arguments.putParcelable(MovieReviewFragment.DETAIL_URI, getIntent().getData());
-
-/*
-            PopMovieDetailActivityFragment fragment = new PopMovieDetailActivityFragment();
-            fragment.setArguments(arguments);
-*/
+            arguments.putParcelable(LoadMovieRetrofitFragment.DETAIL_URI, getIntent().getData());
 
             movieDetailsFragment = new MovieDetailsFragment();
             movieDetailsFragment.setArguments(arguments);
@@ -49,12 +46,8 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             movieTrailerFragment = new MovieTrailerFragment();
             movieTrailerFragment.setArguments(arguments);
 
-/*
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.item_details, movieDetailsFragment)
-                    .commit();
-*/
-
+            loadMovieRetrofitFragment = new LoadMovieRetrofitFragment();
+            loadMovieRetrofitFragment.setArguments(arguments);
         }
 
         setContentView(R.layout.tab_layout);
@@ -68,6 +61,11 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(movieViewPagerAdapter);
+
+        int movieId = Utility.fetchMovieIdFromUri(this, getIntent().getData());
+
+        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId);
+
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -107,9 +105,6 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-/*                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_details, movieDetailsFragment)
-                            .commit();*/
                     return movieDetailsFragment;
                 case 1:
                     return movieTrailerFragment;

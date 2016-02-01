@@ -3,31 +3,24 @@ package com.bennychee.popularmovies.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.YoutubeLightBox;
 import com.bennychee.popularmovies.data.MovieContract;
 
-import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayer.ErrorReason;
-import com.google.android.youtube.player.YouTubePlayer.PlaybackEventListener;
-import com.google.android.youtube.player.YouTubePlayer.PlayerStateChangeListener;
-import com.google.android.youtube.player.YouTubePlayer.Provider;
-import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.android.youtube.player.YouTubeThumbnailLoader;
 import com.google.android.youtube.player.YouTubeThumbnailView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by B on 21/01/2016.
@@ -39,10 +32,11 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
     private String youtubeKey;
     YouTubeThumbnailView youTubeThumbnailView;
     YouTubeThumbnailLoader youTubeThumbnailLoader;
-
+    private final Map<YouTubeThumbnailView, YouTubeThumbnailLoader> thumbnailLoaderMap;
 
     public TrailerAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
+        thumbnailLoaderMap = new HashMap<YouTubeThumbnailView, YouTubeThumbnailLoader>();
     }
 
     @Override
@@ -74,11 +68,6 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
                             .COLUMN_YOUTUBE_KEY)
         );
 
-/*
-                Uri youtubeUri = Uri.parse(BuildConfig.YOUTUBE_TRAILER_URL + youtubeKey);
-                Log.d(LOG_TAG, "Youtube URL: " + youtubeUri.toString());
-*/
-
         youTubeThumbnailView = new YouTubeThumbnailView(context);
         youTubeThumbnailView = (YouTubeThumbnailView) view.findViewById(R.id.youtube_thumbnail);
         youTubeThumbnailView.setTag(youtubeKey);
@@ -93,21 +82,21 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
                 youTubeThumbnailLoader.release();
             }
         });
-/*
-        YouTubePlayerView youTubePlayerView = (YouTubePlayerView) view.findViewById(R.id.youtube_player);
-        youTubePlayerView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
-*/
+    }
+
+    public void release (){
+        for (YouTubeThumbnailLoader loader : thumbnailLoaderMap.values()) {
+            loader.release();
+        }
     }
 
     @Override
     public void onInitializationSuccess(YouTubeThumbnailView youTubeThumbnailView, YouTubeThumbnailLoader thumbnailLoader) {
 
-
         youTubeThumbnailLoader = thumbnailLoader;
         thumbnailLoader.setOnThumbnailLoadedListener(new ThumbnailListener());
-
+        thumbnailLoaderMap.put(youTubeThumbnailView,thumbnailLoader);
         youTubeThumbnailLoader.setVideo(youTubeThumbnailView.getTag().toString());
-
     }
 
     private final class ThumbnailListener implements
@@ -119,8 +108,7 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
 
         @Override
         public void onThumbnailError(YouTubeThumbnailView thumbnail,
-                                     YouTubeThumbnailLoader.ErrorReason reason) {
-        }
+                                     YouTubeThumbnailLoader.ErrorReason reason) {   }
     }
 
 
