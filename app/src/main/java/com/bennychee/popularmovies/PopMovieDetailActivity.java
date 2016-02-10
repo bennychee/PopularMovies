@@ -7,8 +7,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 
+import com.bennychee.popularmovies.event.ReviewEvent;
+import com.bennychee.popularmovies.event.TrailerEvent;
 import com.bennychee.popularmovies.fragment.MovieDetailsFragment;
 import com.bennychee.popularmovies.fragment.MovieReviewFragment;
 import com.bennychee.popularmovies.fragment.MovieTrailerFragment;
@@ -16,11 +19,12 @@ import com.bennychee.popularmovies.fragment.LoadMovieRetrofitFragment;
 
 public class PopMovieDetailActivity extends AppCompatActivity {
 
-
     MovieDetailsFragment movieDetailsFragment;
     MovieReviewFragment movieReviewFragment;
     MovieTrailerFragment movieTrailerFragment;
     LoadMovieRetrofitFragment loadMovieRetrofitFragment;
+
+    public final String LOG_TAG = PopMovieDetailActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,9 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             loadMovieRetrofitFragment.setArguments(arguments);
         }
 
+        int movieId = Utility.fetchMovieIdFromUri(this, getIntent().getData());
+        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId);
+
         setContentView(R.layout.tab_layout);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -59,12 +66,10 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+
         MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(movieViewPagerAdapter);
 
-        int movieId = Utility.fetchMovieIdFromUri(this, getIntent().getData());
-
-        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId);
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -73,8 +78,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(tab.getPosition());
             }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+            @Override    public void onTabUnselected(TabLayout.Tab tab) {
 
             }
 
@@ -84,6 +88,14 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void onEvent(ReviewEvent event) {
+        if (event.isRetrofitCompleted) {
+            Log.d(LOG_TAG, "Event Message - Retrofit done, load the review loader!");
+        } else {
+            Log.d(LOG_TAG, "Event Message - " + event.toString());
+        }
     }
 
     @Override
@@ -121,4 +133,3 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         }
     }
 }
-

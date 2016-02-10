@@ -68,9 +68,9 @@ public class LoadMovieRetrofitFragment extends Fragment {
 
         MovieService service = retrofit.create(MovieService.class);
 
-        MovieRuntime(context, movieId, apiKey, service);
+//        MovieRuntime(context, movieId, apiKey, service);
 //        MovieTrailers(context, movieId, apiKey, service);
-        MovieReview(context, movieId, apiKey, service);
+//        MovieReview(context, movieId, apiKey, service);
     }
 
 

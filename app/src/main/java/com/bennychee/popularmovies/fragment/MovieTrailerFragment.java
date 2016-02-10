@@ -124,7 +124,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
         movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-        LoadMovieDetails(movieId);
+//        LoadMovieDetails(movieId);
 
         getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
 

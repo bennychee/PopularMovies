@@ -26,8 +26,18 @@ import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieModel;
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieResult;
+import com.bennychee.popularmovies.api.models.review.MovieReviews;
+import com.bennychee.popularmovies.api.models.review.Result;
+import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
+import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
+import com.bennychee.popularmovies.event.ReviewEvent;
+import com.bennychee.popularmovies.event.RuntimeEvent;
+import com.bennychee.popularmovies.event.TrailerEvent;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.GsonConverterFactory;
@@ -43,6 +53,15 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int MOVIE_NOTIFICATION_ID = 1001;
     private static long lastSyncTime = 0L;
 
+    ArrayList<Integer> movieIdList = new ArrayList<Integer>();
+    public MovieService service;
+    final String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
+
+    int reviewCount = 0;
+    int trailerCount = 0;
+    int runtimeCount = 0;
+    static final int RETRY_COUNT = 3;
+
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
@@ -55,9 +74,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             String sortOrder = Utility.getPreferredSortOrder(getContext());
             Log.d(LOG_TAG, "Sort Order: " + sortOrder);
 
-//            String baseUrl = "http://api.themoviedb.org/3";
             String baseUrl = BuildConfig.API_BASE_URL;
-            final String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
 
             Log.d(LOG_TAG, "Base URL = " + baseUrl);
             Log.d(LOG_TAG, "API Key = " + apiKey);
@@ -67,7 +84,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
-            final MovieService service = retrofit.create(MovieService.class);
+            service = retrofit.create(MovieService.class);
 
             Call<PopMovieModel> popMovieModelCall = service.getPopMovies(apiKey, sortOrder);
             popMovieModelCall.enqueue(new Callback<PopMovieModel>() {
@@ -79,6 +96,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     } else {
                         List<PopMovieResult> movieResultList = response.body().getResults();
                         Utility.storeMovieList(getContext(), movieResultList);
+
+                        for (final PopMovieResult movie : movieResultList) {
+                            movieIdList.add(movie.getId());
+                        }
                     }
                 }
 
@@ -86,12 +107,129 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 public void onFailure(Throwable t) {
                     Log.e(LOG_TAG, "Movie Error: " + t.getMessage());
                 }
+            });
+
+            for (int i =0; i< movieIdList.size(); i++) {
+                MovieReview(getContext(), movieIdList.get(i), apiKey, service);
+                try {
+                    Thread.sleep(500);
+                    Log.d(LOG_TAG, "Sleep after MovieReview");
+                } catch (InterruptedException e) {
+                }
+                MovieTrailers(getContext(), movieIdList.get(i), apiKey, service);
+                try {
+                    Thread.sleep(500);
+                    Log.d(LOG_TAG, "Sleep after MovieTrailers");
+                } catch (InterruptedException e) {
+                }
+                MovieRuntime(getContext(), movieIdList.get(i), apiKey, service);
+                if (i != movieIdList.size()-1) {
+                    try {
+                        Thread.sleep(500);
+                        Log.d(LOG_TAG, "Sleep after MovieRuntime");
+                    } catch (InterruptedException e) {
+                    }
+                }
             }
-            );
 
             notifyMovie();
         }
     }
+
+    private void MovieRuntime(final Context context, final int movieId, final String apiKey, final MovieService service) {
+        Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
+        movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
+            @Override
+            public void onResponse(Response<MovieRuntime> response) {
+                Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
+                if (!response.isSuccess()) {
+                    Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
+                    if (runtimeCount < RETRY_COUNT) {
+                        //Retry 3 times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + runtimeCount);
+                        MovieRuntime(context, movieId, apiKey, service);
+                        runtimeCount++;
+                    }
+                } else {
+                    int runtime = response.body().getRuntime();
+                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
+                    Utility.updateMovieWithRuntime(context, movieId, runtime);
+                    EventBus.getDefault().post(new RuntimeEvent(true));
+                    Log.d(LOG_TAG, "EventBus posted");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
+                EventBus.getDefault().post(new RuntimeEvent(false));
+            }
+        });
+    }
+
+
+
+    private void MovieTrailers(final Context context, final int movieId, final String apiKey, final MovieService service) {
+        Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
+        movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
+            @Override
+            public void onResponse(Response<MovieTrailers> response) {
+                Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
+                if (!response.isSuccess()) {
+                    Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
+                    if (trailerCount < RETRY_COUNT) {
+                        //Retry 3 times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + trailerCount);
+                        MovieTrailers(context, movieId, apiKey, service);
+                        trailerCount++;
+                    }
+                } else {
+                    List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
+                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
+                    Utility.storeTrailerList(context, movieId, trailersResultList);
+                    EventBus.getDefault().post(new TrailerEvent(true));
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
+                EventBus.getDefault().post(new TrailerEvent(false));
+            }
+        });
+
+    }
+
+    private void MovieReview (final Context context, final int movieId, final String apiKey, final MovieService service) {
+        Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId, apiKey);
+        movieReviewsCall.enqueue(new Callback<MovieReviews>() {
+            @Override
+            public void onResponse(Response<MovieReviews> response) {
+                Log.d(LOG_TAG, "Movie Reviews Response Status: " + response.code());
+                if (!response.isSuccess()) {
+                    Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
+                    if (reviewCount < RETRY_COUNT) {
+                        //Retry RETRY_COUNT times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + reviewCount);
+                        MovieReview(context, movieId, apiKey, service);
+                        reviewCount++;
+                    }
+                } else {
+                    List<Result> reviewResultList = response.body().getResults();
+                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
+                    Utility.storeCommentList(context, movieId, reviewResultList);
+                    EventBus.getDefault().post(new ReviewEvent(true));
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
+                EventBus.getDefault().post(new ReviewEvent(false));
+            }
+        });
+    }
+
 
     private void notifyMovie() {
 
