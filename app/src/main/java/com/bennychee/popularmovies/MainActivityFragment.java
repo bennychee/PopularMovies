@@ -1,5 +1,6 @@
 package com.bennychee.popularmovies;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -40,6 +41,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private GridView popMoviesGridView;
     public static final int MOVIE_LOADER = 0;
 
+    private ProgressDialog progressBar;
+
+    final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+
     public MainActivityFragment() {
     }
 
@@ -75,7 +80,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        final String LOG_TAG = getActivity().getLocalClassName();
+
+
+        progressBar = new ProgressDialog(rootView.getContext());
+        progressBar.setCancelable(true);
+        progressBar.setMessage("Getting Movies....");
+        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressBar.setProgress(0);
+        progressBar.setMax(100);
+        progressBar.show();
 
         Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
@@ -127,6 +140,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         popMovieAdapter.swapCursor(data);
+        if (data.getCount() > 0) {
+            progressBar.dismiss();
+        }
     }
 
     @Override

@@ -231,6 +231,15 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
             String moviePoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_IMAGE_URL));
             String backdropPoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_BACKDROP_IMAGE_URL));
 
+            int favMovie = data.getInt(data.getColumnIndex(MovieEntry.COLUMN_FAVORITE));
+
+            //TODO Favorite
+            if (favMovie == 1) {
+                //Change color of fav icon to like
+            } else {
+                //change color of fav icon to unlike
+            }
+
             Uri imageUri = Uri.parse(BuildConfig.IMAGE_BASE_URL).buildUpon()
                     .appendPath(getActivity().getString(R.string.image_size_medium))
                     .appendPath(moviePoster.substring(1))
@@ -290,7 +299,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
             final MovieService service = retrofit.create(MovieService.class);
 
-            MovieRuntime(movieId, apiKey, service);
+//            MovieRuntime(movieId, apiKey, service);
         } else {
             Log.d(LOG_TAG, "Info in DB. No Retrofit callback required");
             EventBus.getDefault().post(new RuntimeEvent(true));

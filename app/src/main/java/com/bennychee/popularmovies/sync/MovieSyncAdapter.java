@@ -53,7 +53,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int MOVIE_NOTIFICATION_ID = 1001;
     private static long lastSyncTime = 0L;
 
-    ArrayList<Integer> movieIdList = new ArrayList<Integer>();
     public MovieService service;
     final String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
 
@@ -98,7 +97,14 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         Utility.storeMovieList(getContext(), movieResultList);
 
                         for (final PopMovieResult movie : movieResultList) {
-                            movieIdList.add(movie.getId());
+                            MovieReview(getContext(), movie.getId(), apiKey, service);
+                            try {
+                                Thread.sleep(700);
+                                Log.d(LOG_TAG, "Movie ID: " + movie.getId() + " Sleep after MovieReview");
+                            } catch (InterruptedException e) {
+                            }
+                            MovieTrailers(getContext(), movie.getId(), apiKey, service);
+                            MovieRuntime(getContext(), movie.getId(), apiKey, service);
                         }
                     }
                 }
@@ -109,6 +115,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             });
 
+/*
             for (int i =0; i< movieIdList.size(); i++) {
                 MovieReview(getContext(), movieIdList.get(i), apiKey, service);
                 try {
@@ -131,6 +138,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
             }
+*/
 
             notifyMovie();
         }

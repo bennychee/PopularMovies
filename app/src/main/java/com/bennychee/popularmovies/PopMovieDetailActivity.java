@@ -55,7 +55,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         }
 
         int movieId = Utility.fetchMovieIdFromUri(this, getIntent().getData());
-        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId);
+//        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId);
 
         setContentView(R.layout.tab_layout);
 
