@@ -9,9 +9,11 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -41,6 +43,10 @@ import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
 import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
+import com.bennychee.popularmovies.fragment.LoadMovieRetrofitFragment;
+import com.bennychee.popularmovies.fragment.MovieDetailsFragment;
+import com.bennychee.popularmovies.fragment.MovieReviewFragment;
+import com.bennychee.popularmovies.fragment.MovieTrailerFragment;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -65,38 +71,10 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
     private static final String LOG_TAG = PopMovieDetailActivityFragment.class.getSimpleName();
 
-    // CooridnatorLayout sample
-    // https://github.com/saulmm/CoordinatorBehaviorExample
-
-    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR  = 0.9f;
-    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS     = 0.3f;
-    private static final int ALPHA_ANIMATIONS_DURATION              = 200;
-
-    private boolean mIsTheTitleVisible          = false;
-    private boolean mIsTheTitleContainerVisible = true;
-
-    private LinearLayout mTitleContainer;
-    private TextView mTitle;
-    private TextView mDescription;
-    private AppBarLayout mAppBarLayout;
-    private CollapsingToolbarLayout mToolbar;
-    private ImageView posterImageView;
-    private ImageView backdropImageView;
-    private TextView mMovieRuntime;
-    private TextView mMovieYear;
-    private TextView mMovieRating;
-    private TextView mVotes;
-    private GridView trailerGridView;
-    private ListView reviewListView;
-
-
-    private String youtubeKey;
-
-    public TabLayout tabLayout;
-
-    private static final int MOVIE_DETAIL_LOADER = 0;
-    private static final int REVIEW_DETAIL_LOADER = 1;
-    private static final int TRAILER_DETAIL_LOADER = 2;
+    MovieDetailsFragment movieDetailsFragment;
+    MovieReviewFragment movieReviewFragment;
+    MovieTrailerFragment movieTrailerFragment;
+    LoadMovieRetrofitFragment loadMovieRetrofitFragment;
 
     static final String DETAIL_URI = "URI";
 
@@ -104,6 +82,9 @@ public class PopMovieDetailActivityFragment extends Fragment {
     private int movieId;
 
     private ListView mListView;
+
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     public PopMovieDetailActivityFragment() {
         // Required empty public constructor
@@ -124,8 +105,35 @@ public class PopMovieDetailActivityFragment extends Fragment {
             mUri = arguments.getParcelable(PopMovieDetailActivityFragment.DETAIL_URI);
         }
 
+        if (savedInstanceState == null) {
+            Bundle args = new Bundle();
+            args.putParcelable(MovieDetailsFragment.DETAIL_URI, mUri);
+            movieDetailsFragment = new MovieDetailsFragment();
+            movieDetailsFragment.setArguments(args);
+
+            args.putParcelable(MovieTrailerFragment.DETAIL_URI, mUri);
+            movieTrailerFragment = new MovieTrailerFragment();
+            movieTrailerFragment.setArguments(args);
+
+            args.putParcelable(MovieReviewFragment.DETAIL_URI, mUri);
+            movieReviewFragment = new MovieReviewFragment();
+            movieReviewFragment.setArguments(args);
+
+            args.putParcelable(LoadMovieRetrofitFragment.DETAIL_URI, mUri);
+            loadMovieRetrofitFragment = new LoadMovieRetrofitFragment();
+            loadMovieRetrofitFragment.setArguments(args);
+        }
+
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_pop_movie_detail_activity, container, false);
+        View rootView = inflater.inflate(R.layout.tab_layout, container, false);
+
+        tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
+        tabLayout.addTab(tabLayout.newTab().setText("Details"));
+        tabLayout.addTab(tabLayout.newTab().setText("Trailers"));
+        tabLayout.addTab(tabLayout.newTab().setText("Reviews"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        viewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
 
         return rootView;
     }
@@ -137,7 +145,59 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+        loadMovieRetrofitFragment.LoadMovieRetrofit(getContext(), movieId, mUri);
         super.onActivityCreated(savedInstanceState);
+
+        MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(this.getFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(movieViewPagerAdapter);
+
+
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
+
+    public class MovieViewPagerAdapter extends FragmentStatePagerAdapter {
+        int mNumOfTabs;
+
+        public MovieViewPagerAdapter(FragmentManager fm, int numOfTabs) {
+            super(fm);
+            this.mNumOfTabs = numOfTabs;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return movieDetailsFragment;
+                case 1:
+                    return movieTrailerFragment;
+                case 2:
+                    return movieReviewFragment;
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return mNumOfTabs;
+        }
     }
 }
 

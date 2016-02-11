@@ -30,13 +30,18 @@ public class PopMovieDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_pop_movie_detail);
+        setContentView(R.layout.activity_pop_movie_detail);
 
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
 
             Bundle arguments = new Bundle();
+            arguments.putParcelable(PopMovieDetailActivityFragment.DETAIL_URI, getIntent().getData());
+            PopMovieDetailActivityFragment popMovieDetailActivityFragment = new PopMovieDetailActivityFragment();
+            popMovieDetailActivityFragment.setArguments(arguments);
+
+/*
             arguments.putParcelable(MovieDetailsFragment.DETAIL_URI, getIntent().getData());
             arguments.putParcelable(MovieTrailerFragment.DETAIL_URI, getIntent().getData());
             arguments.putParcelable(MovieReviewFragment.DETAIL_URI, getIntent().getData());
@@ -54,17 +59,22 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             loadMovieRetrofitFragment = new LoadMovieRetrofitFragment();
             loadMovieRetrofitFragment.setArguments(arguments);
 
+*/
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.tab_layout, new PopMovieDetailActivityFragment())
                     .commit();
         }
 
+/*
         final Uri mUri = getIntent().getData();
         int movieId = Utility.fetchMovieIdFromUri(this, mUri);
         loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId, mUri);
 
         setContentView(R.layout.tab_layout);
+*/
 
+/*
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.addTab(tabLayout.newTab().setText("Details"));
         tabLayout.addTab(tabLayout.newTab().setText("Trailers"));
@@ -75,8 +85,10 @@ public class PopMovieDetailActivity extends AppCompatActivity {
 
         MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(movieViewPagerAdapter);
+*/
 
 
+/*
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -93,6 +105,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
 
             }
         });
+*/
 
     }
 
