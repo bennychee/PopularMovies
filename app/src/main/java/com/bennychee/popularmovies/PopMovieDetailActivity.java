@@ -37,7 +37,8 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             // using a fragment transaction.
 
             Bundle arguments = new Bundle();
-            arguments.putParcelable(PopMovieDetailActivityFragment.DETAIL_URI, getIntent().getData());
+            Uri mUri = getIntent().getData();
+            arguments.putParcelable(PopMovieDetailActivityFragment.DETAIL_URI, mUri);
             PopMovieDetailActivityFragment popMovieDetailActivityFragment = new PopMovieDetailActivityFragment();
             popMovieDetailActivityFragment.setArguments(arguments);
 
@@ -60,9 +61,8 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             loadMovieRetrofitFragment.setArguments(arguments);
 
 */
-
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.tab_layout, new PopMovieDetailActivityFragment())
+                    .add(R.id.movie_detail_container, popMovieDetailActivityFragment)
                     .commit();
         }
 
@@ -124,7 +124,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         return true;
     }
 
-    public class MovieViewPagerAdapter extends FragmentStatePagerAdapter {
+ /*   public class MovieViewPagerAdapter extends FragmentStatePagerAdapter {
         int mNumOfTabs;
 
         public MovieViewPagerAdapter(FragmentManager fm, int numOfTabs) {
@@ -150,5 +150,5 @@ public class PopMovieDetailActivity extends AppCompatActivity {
         public int getCount() {
             return mNumOfTabs;
         }
-    }
+    }*/
 }

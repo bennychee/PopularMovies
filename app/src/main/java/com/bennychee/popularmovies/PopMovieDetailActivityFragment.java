@@ -92,11 +92,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -124,6 +119,10 @@ public class PopMovieDetailActivityFragment extends Fragment {
             loadMovieRetrofitFragment.setArguments(args);
         }
 
+        Log.d(LOG_TAG, "mUri = " + mUri.toString());
+        int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+        loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.tab_layout, container, false);
 
@@ -135,23 +134,8 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
         viewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
 
-        return rootView;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-        loadMovieRetrofitFragment.LoadMovieRetrofit(getContext(), movieId, mUri);
-        super.onActivityCreated(savedInstanceState);
-
         MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(this.getFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(movieViewPagerAdapter);
-
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -170,6 +154,18 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
             }
         });
+
+        return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
     }
 
     public class MovieViewPagerAdapter extends FragmentStatePagerAdapter {

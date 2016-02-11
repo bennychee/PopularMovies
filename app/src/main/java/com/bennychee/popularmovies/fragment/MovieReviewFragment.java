@@ -199,7 +199,6 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the review loader!");
             getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
-            progressBar.dismiss();
         } else {
 
         }

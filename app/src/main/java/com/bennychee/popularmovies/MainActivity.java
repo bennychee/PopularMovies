@@ -24,11 +24,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 */
-        if (findViewById(R.id.tab_layout) != null) {
+        if (findViewById(R.id.movie_detail_container) != null) {
             mTwoPane = true;
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.tab_layout, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
+                        .replace(R.id.movie_detail_container, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
                         .commit();
             }
         } else {
