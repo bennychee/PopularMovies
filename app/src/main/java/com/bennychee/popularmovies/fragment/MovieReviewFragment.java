@@ -213,7 +213,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
-        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+//        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
 //        LoadMovieDetails(movieId);
         getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
 

@@ -59,26 +59,29 @@ public class LoadMovieRetrofitFragment extends Fragment {
         Log.d(LOG_TAG, "API Key = " + apiKey);
         Log.d(LOG_TAG, "Movie ID = " + movieId);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        if (mUri != null) {
 
-        MovieService service = retrofit.create(MovieService.class);
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
 
-        if (Utility.checkRuntimeFromUri(context, mUri) <= 0) {
-            MovieRuntime(context, movieId, apiKey, service);
-            Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
-        }
+            MovieService service = retrofit.create(MovieService.class);
 
-        if (Utility.checkTrailerFromUri(context, mUri) <= 0) {
-            MovieTrailers(context, movieId, apiKey, service);
-            Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
-        }
+            if (Utility.checkRuntimeFromUri(context, mUri) <= 0) {
+                MovieRuntime(context, movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
+            }
 
-        if (Utility.checkReviewFromUri(context, mUri) <= 0) {
-            MovieReview(context, movieId, apiKey, service);
-            Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
+            if (Utility.checkTrailerFromUri(context, mUri) <= 0) {
+                MovieTrailers(context, movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
+            }
+
+            if (Utility.checkReviewFromUri(context, mUri) <= 0) {
+                MovieReview(context, movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
+            }
         }
     }
 

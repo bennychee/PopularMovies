@@ -119,12 +119,13 @@ public class PopMovieDetailActivityFragment extends Fragment {
             loadMovieRetrofitFragment.setArguments(args);
         }
 
-        Log.d(LOG_TAG, "mUri = " + mUri.toString());
-        int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-        loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
-
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.tab_layout, container, false);
+
+        if (mUri != null) {
+            int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+            loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
+        }
 
         tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         tabLayout.addTab(tabLayout.newTab().setText("Details"));

@@ -123,7 +123,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
-        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+ //       movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
 //        LoadMovieDetails(movieId);
 
         getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);

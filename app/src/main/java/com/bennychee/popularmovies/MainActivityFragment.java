@@ -81,16 +81,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-/*
-        progressBar = new ProgressDialog(rootView.getContext());
-        progressBar.setCancelable(true);
-        progressBar.setMessage("Getting Movies....");
-        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        progressBar.show();
-*/
-
         Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
         popMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);

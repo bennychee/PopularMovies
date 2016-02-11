@@ -125,7 +125,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+//        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
     @Override
@@ -190,7 +190,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
-        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
+//        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
         //LoadMovieDetails(movieId);
         getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
 
