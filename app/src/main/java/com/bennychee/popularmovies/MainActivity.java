@@ -14,17 +14,28 @@ import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 public class MainActivity extends AppCompatActivity {
 
     private boolean mTwoPane;
+    private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+/*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+*/
+        if (findViewById(R.id.tab_layout) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.tab_layout, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
 
         MovieSyncAdapter.initializeSyncAdapter(getApplicationContext());
-
-        
     }
 
     @Override
@@ -47,5 +58,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PopMovieDetailActivityFragment popMovieDetailActivityFragment = (PopMovieDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(POPMOVIEFRAGMENT_TAG);
     }
 }

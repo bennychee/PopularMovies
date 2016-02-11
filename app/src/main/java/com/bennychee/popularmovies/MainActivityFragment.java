@@ -81,7 +81,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
 /*
         progressBar = new ProgressDialog(rootView.getContext());
         progressBar.setCancelable(true);

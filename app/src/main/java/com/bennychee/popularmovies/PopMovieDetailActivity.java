@@ -53,6 +53,10 @@ public class PopMovieDetailActivity extends AppCompatActivity {
 
             loadMovieRetrofitFragment = new LoadMovieRetrofitFragment();
             loadMovieRetrofitFragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.tab_layout, new PopMovieDetailActivityFragment())
+                    .commit();
         }
 
         final Uri mUri = getIntent().getData();
