@@ -143,7 +143,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         popMovieAdapter.swapCursor(data);
         if (data.getCount() > 0) {
-            progressBar.dismiss();
+//            progressBar.dismiss();
         }
     }
 

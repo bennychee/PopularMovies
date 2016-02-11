@@ -2,12 +2,14 @@ package com.bennychee.popularmovies.fragment;
 
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -85,6 +87,9 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     private TextView mMovieRating;
     private TextView mVotes;
 
+    private FloatingActionButton favButton;
+
+
     private static final int MOVIE_DETAIL_LOADER = 0;
 
     public static final String DETAIL_URI = "URI";
@@ -149,6 +154,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
         mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
 
+        favButton = (FloatingActionButton) rootView.findViewById(R.id.movie_favorite);
+
     /*    progressBar = new ProgressDialog(rootView.getContext());
         progressBar.setCancelable(true);
         progressBar.setMessage("Retrieving Movie Details");
@@ -184,7 +191,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     public void onActivityCreated(Bundle savedInstanceState) {
         //fetch movie details on-the-fly and store in DB
         movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-        LoadMovieDetails(movieId);
+        //LoadMovieDetails(movieId);
         getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
 
         super.onActivityCreated(savedInstanceState);
@@ -221,6 +228,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
     private void LoadMovieDetailView(Cursor data) {
         if (data != null && data.moveToFirst()) {
+
+            final int _ID = data.getInt(data.getColumnIndex(MovieEntry._ID));
             String title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
             Log.d(LOG_TAG, "Title: " + title);
             mToolbar.setTitle(title);
@@ -231,13 +240,13 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
             String moviePoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_IMAGE_URL));
             String backdropPoster = data.getString(data.getColumnIndex(MovieEntry.COLUMN_BACKDROP_IMAGE_URL));
 
-            int favMovie = data.getInt(data.getColumnIndex(MovieEntry.COLUMN_FAVORITE));
+            final int isFavMovie = data.getInt(data.getColumnIndex(MovieEntry.COLUMN_FAVORITE));
 
-            //TODO Favorite
-            if (favMovie == 1) {
+            if (isFavMovie == 1) {
                 //Change color of fav icon to like
+                favButton.setImageResource(R.drawable.ic_favorite);
             } else {
-                //change color of fav icon to unlike
+                favButton.setImageResource(R.drawable.ic_favorite_not);
             }
 
             Uri imageUri = Uri.parse(BuildConfig.IMAGE_BASE_URL).buildUpon()
@@ -268,6 +277,51 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
             mMovieRuntime.setText(getActivity().getString(R.string.runtime_mins, data.getString(data.getColumnIndex(MovieEntry.COLUMN_RUNTIME))));
             mMovieRating.setText(getActivity().getString(R.string.ratings_ten, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE))));
             mVotes.setText(getActivity().getString(R.string.votes, data.getString(data.getColumnIndex(MovieEntry.COLUMN_VOTE_COUNT))));
+
+            favButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch(isFavMovie) {
+                        case 0: {
+                            ContentValues addFav  = new ContentValues();
+                            addFav.put(MovieEntry.COLUMN_FAVORITE, 1);
+
+                            int updateFavRow = getActivity().getContentResolver().update(
+                              MovieEntry.CONTENT_URI,
+                                    addFav,
+                                    MovieEntry._ID + "= ?",
+                                    new String[]{String.valueOf(_ID)}
+                            );
+
+                            if (updateFavRow <= 0) {
+                                Log.d(LOG_TAG, "Movie not marked as favorite");
+                            } else {
+                                Log.d(LOG_TAG, "Movie marked as favorite");
+                            }
+                        }
+                        break;
+
+                        case 1: {
+                            ContentValues rmFav  = new ContentValues();
+                            rmFav.put(MovieEntry.COLUMN_FAVORITE, 0);
+
+                            int updateFavRow = getActivity().getContentResolver().update(
+                                    MovieEntry.CONTENT_URI,
+                                    rmFav,
+                                    MovieEntry._ID + "= ?",
+                                    new String[]{String.valueOf(_ID)}
+                            );
+
+                            if (updateFavRow < 0) {
+                                Log.d(LOG_TAG, "Movie not removed as favorite");
+                            } else {
+                                Log.d(LOG_TAG, "Movie removed as favorite");
+                            }
+                        }
+                        break;
+                    }
+                }
+            });
 
         }
     }

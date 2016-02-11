@@ -333,7 +333,7 @@ public class Utility {
 
     /**
      * Fetches the runtime from the database, as fetched from the cloud service
-     *
+     *l
      * @param context  The application context
      * @param movieUri The URI of the movie, pointing in the movie table
      * @return The runtime, or -1 if something goes wrong
