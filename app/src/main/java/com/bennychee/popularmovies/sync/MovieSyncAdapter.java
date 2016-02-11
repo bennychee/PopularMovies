@@ -59,7 +59,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     int reviewCount = 0;
     int trailerCount = 0;
     int runtimeCount = 0;
-    static final int RETRY_COUNT = 3;
+    static final int RETRY_COUNT = 5;
+    static final int SLEEP_TIME = 700;
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -98,11 +99,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
                         for (final PopMovieResult movie : movieResultList) {
                             MovieReview(getContext(), movie.getId(), apiKey, service);
+
                             try {
-                                Thread.sleep(700);
+                                Thread.sleep(SLEEP_TIME);
                                 Log.d(LOG_TAG, "Movie ID: " + movie.getId() + " Sleep after MovieReview");
                             } catch (InterruptedException e) {
                             }
+
                             MovieTrailers(getContext(), movie.getId(), apiKey, service);
                             MovieRuntime(getContext(), movie.getId(), apiKey, service);
                         }
@@ -114,31 +117,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.e(LOG_TAG, "Movie Error: " + t.getMessage());
                 }
             });
-
-/*
-            for (int i =0; i< movieIdList.size(); i++) {
-                MovieReview(getContext(), movieIdList.get(i), apiKey, service);
-                try {
-                    Thread.sleep(500);
-                    Log.d(LOG_TAG, "Sleep after MovieReview");
-                } catch (InterruptedException e) {
-                }
-                MovieTrailers(getContext(), movieIdList.get(i), apiKey, service);
-                try {
-                    Thread.sleep(500);
-                    Log.d(LOG_TAG, "Sleep after MovieTrailers");
-                } catch (InterruptedException e) {
-                }
-                MovieRuntime(getContext(), movieIdList.get(i), apiKey, service);
-                if (i != movieIdList.size()-1) {
-                    try {
-                        Thread.sleep(500);
-                        Log.d(LOG_TAG, "Sleep after MovieRuntime");
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-*/
 
             notifyMovie();
         }
@@ -152,13 +130,23 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
+
                     if (runtimeCount < RETRY_COUNT) {
                         //Retry 3 times
                         Log.d(LOG_TAG, "Retry Retrofit service #" + runtimeCount);
+/*
+                        try {
+                            Thread.sleep(SLEEP_TIME);
+                            Log.d(LOG_TAG, "Movie ID: " + movieId + " Sleep in MovieRuntime");
+                        } catch (InterruptedException e) {
+                        }
+*/
                         MovieRuntime(context, movieId, apiKey, service);
                         runtimeCount++;
                     }
+
                 } else {
+//                    runtimeCount = 0;
                     int runtime = response.body().getRuntime();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
@@ -188,10 +176,16 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     if (trailerCount < RETRY_COUNT) {
                         //Retry 3 times
                         Log.d(LOG_TAG, "Retry Retrofit service #" + trailerCount);
-                        MovieTrailers(context, movieId, apiKey, service);
+  /*                      try {
+                            Thread.sleep(SLEEP_TIME);
+                            Log.d(LOG_TAG, "Movie ID: " + movieId + " Sleep in MovieTrailers");
+                        } catch (InterruptedException e) {
+                        }
+  */                      MovieTrailers(context, movieId, apiKey, service);
                         trailerCount++;
                     }
                 } else {
+                    trailerCount = 0;
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(context, movieId, trailersResultList);
@@ -219,10 +213,18 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     if (reviewCount < RETRY_COUNT) {
                         //Retry RETRY_COUNT times
                         Log.d(LOG_TAG, "Retry Retrofit service #" + reviewCount);
+/*
+                        try {
+                            Thread.sleep(SLEEP_TIME);
+                            Log.d(LOG_TAG, "Movie ID: " + movieId + " Sleep in MovieReview");
+                        } catch (InterruptedException e) {
+                        }
+*/
                         MovieReview(context, movieId, apiKey, service);
                         reviewCount++;
                     }
                 } else {
+                    reviewCount = 0;
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(context, movieId, reviewResultList);

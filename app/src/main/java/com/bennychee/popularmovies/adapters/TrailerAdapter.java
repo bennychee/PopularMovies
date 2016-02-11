@@ -70,18 +70,21 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
 
         youTubeThumbnailView = new YouTubeThumbnailView(context);
         youTubeThumbnailView = (YouTubeThumbnailView) view.findViewById(R.id.youtube_thumbnail);
-        youTubeThumbnailView.setTag(youtubeKey);
-        youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
 
         youTubeThumbnailView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent lightboxIntent = new Intent(context, YoutubeLightBox.class);
-                lightboxIntent.putExtra(YoutubeLightBox.KEY_VIDEO_ID, youtubeKey);
-                context.startActivity(lightboxIntent);
-                youTubeThumbnailLoader.release();
+                String youtubeKey = (String) v.getTag();
+//                final Intent lightboxIntent = new Intent(context, YoutubeLightBox.class);
+//                lightboxIntent.putExtra(YoutubeLightBox.KEY_VIDEO_ID, youtubeKey);
+//                context.startActivity(lightboxIntent);
+                //youTubeThumbnailLoader.release();
             }
         });
+
+        youTubeThumbnailView.setTag(youtubeKey);
+        youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+
     }
 
     public void release (){
