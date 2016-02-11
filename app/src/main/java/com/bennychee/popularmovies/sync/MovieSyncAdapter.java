@@ -97,7 +97,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         List<PopMovieResult> movieResultList = response.body().getResults();
                         Utility.storeMovieList(getContext(), movieResultList);
 
-                        for (final PopMovieResult movie : movieResultList) {
+                /*        for (final PopMovieResult movie : movieResultList) {
                             MovieReview(getContext(), movie.getId(), apiKey, service);
 
                             try {
@@ -109,6 +109,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                             MovieTrailers(getContext(), movie.getId(), apiKey, service);
                             MovieRuntime(getContext(), movie.getId(), apiKey, service);
                         }
+*/
                     }
                 }
 

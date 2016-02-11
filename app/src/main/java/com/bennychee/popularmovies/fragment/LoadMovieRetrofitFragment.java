@@ -32,7 +32,6 @@ import retrofit2.Retrofit;
 public class LoadMovieRetrofitFragment extends Fragment {
 
     private static final String LOG_TAG = LoadMovieRetrofitFragment.class.getSimpleName();
-    private Uri mUri;
     public static final String DETAIL_URI = "URI";
 
     private int reviewCount = 0;
@@ -51,8 +50,7 @@ public class LoadMovieRetrofitFragment extends Fragment {
 
     }
 
-
-    public void LoadMovieRetrofit (Context context, int movieId) {
+    public void LoadMovieRetrofit (Context context, int movieId, Uri mUri) {
 
         String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
         String baseUrl = BuildConfig.API_BASE_URL;
@@ -68,11 +66,21 @@ public class LoadMovieRetrofitFragment extends Fragment {
 
         MovieService service = retrofit.create(MovieService.class);
 
-//        MovieRuntime(context, movieId, apiKey, service);
-//        MovieTrailers(context, movieId, apiKey, service);
-//        MovieReview(context, movieId, apiKey, service);
-    }
+        if (Utility.checkRuntimeFromUri(context, mUri) <= 0) {
+            MovieRuntime(context, movieId, apiKey, service);
+            Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
+        }
 
+        if (Utility.checkTrailerFromUri(context, mUri) <= 0) {
+            MovieTrailers(context, movieId, apiKey, service);
+            Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
+        }
+
+        if (Utility.checkReviewFromUri(context, mUri) <= 0) {
+            MovieReview(context, movieId, apiKey, service);
+            Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
+        }
+    }
 
     private void MovieRuntime(final Context context, final int movieId, final String apiKey, final MovieService service) {
         Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);

@@ -48,8 +48,6 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
     public void bindView(View view, final Context context, final Cursor cursor) {
         Log.d(LOG_TAG, "binding view: " + view.toString());
 
-//        FragmentManager fm = context.getSupportFragmentManager();
-
         TextView trailerNameTextView = (TextView) view.findViewById(R.id.trailer_name);
 
         String trailerName = cursor.getString(
@@ -75,16 +73,16 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
             @Override
             public void onClick(View v) {
                 String youtubeKey = (String) v.getTag();
-//                final Intent lightboxIntent = new Intent(context, YoutubeLightBox.class);
-//                lightboxIntent.putExtra(YoutubeLightBox.KEY_VIDEO_ID, youtubeKey);
-//                context.startActivity(lightboxIntent);
-                //youTubeThumbnailLoader.release();
+                final Intent lightboxIntent = new Intent(context, YoutubeLightBox.class);
+                lightboxIntent.putExtra(YoutubeLightBox.KEY_VIDEO_ID, youtubeKey);
+                context.startActivity(lightboxIntent);
             }
         });
 
         youTubeThumbnailView.setTag(youtubeKey);
-        youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
-
+        if (view == null) {
+            youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+        }
     }
 
     public void release (){

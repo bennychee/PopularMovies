@@ -1,5 +1,6 @@
 package com.bennychee.popularmovies;
 
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -54,8 +55,9 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             loadMovieRetrofitFragment.setArguments(arguments);
         }
 
-        int movieId = Utility.fetchMovieIdFromUri(this, getIntent().getData());
-//        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId);
+        final Uri mUri = getIntent().getData();
+        int movieId = Utility.fetchMovieIdFromUri(this, mUri);
+        loadMovieRetrofitFragment.LoadMovieRetrofit(getApplicationContext(), movieId, mUri);
 
         setContentView(R.layout.tab_layout);
 
