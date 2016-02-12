@@ -1,6 +1,7 @@
 package com.bennychee.popularmovies;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -40,10 +41,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private PopMovieAdapter popMovieAdapter;
     private GridView popMoviesGridView;
     public static final int MOVIE_LOADER = 0;
+    private Uri firstMovieUri;
 
-    private ProgressDialog progressBar;
+    private int count = 1;
+
+    private ProgressDialog progressDialog;
 
     final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+
+    public interface Callback {
+        public void onItemSelected(Uri mUri);
+    }
+
 
     public MainActivityFragment() {
     }
@@ -81,28 +90,58 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Loading Movies....");
+        progressDialog.setIndeterminate(true);
+        progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (getResources().getBoolean(R.bool.dual_pane)) {
+                    Log.d(LOG_TAG, "Progress Dialog Dimissed. Doing work!");
+                    ((Callback) getActivity())
+                            .onItemSelected(firstMovieUri);
+                }
+            }
+        });
+
+
         Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
+        if(getResources().getBoolean(R.bool.dual_pane)) {
+            popMoviesGridView.setNumColumns(3);
+        }
         popMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
         popMoviesGridView.setAdapter(popMovieAdapter);
 
-        Log.d(LOG_TAG, "popMoviesGridView: " + popMoviesGridView.getAdapter().toString());
+        progressDialog.show();
 
+        Log.d(LOG_TAG, "popMoviesGridView: " + popMoviesGridView.getAdapter().toString());
         popMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor currentPos = (Cursor) parent.getItemAtPosition(position);
                 if (currentPos != null) {
-                    Intent movieDetailIntent = new Intent(getActivity(), PopMovieDetailActivity.class);
+//                    Intent movieDetailIntent = new Intent(getActivity(), PopMovieDetailActivity.class);
                     final int MOVIE_ID_COL = currentPos.getColumnIndex(MovieContract.MovieEntry._ID);
                     Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentPos.getInt(MOVIE_ID_COL));
 
+                    ((Callback) getActivity())
+                            .onItemSelected(movieUri);
+/*
                     movieDetailIntent.setData(movieUri);
                     startActivity(movieDetailIntent);
+*/
                 }
             }
         });
 
+/*
+        if((getResources().getBoolean(R.bool.dual_pane)) && count == 1) {
+            Intent movieDetailIntent = new Intent(getActivity(), PopMovieDetailActivity.class);
+            Uri movieUri = MovieContract.MovieEntry.buildMovieWithId();
+            count = 0;
+        }
+*/
         return rootView;
     }
 
@@ -131,9 +170,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         popMovieAdapter.swapCursor(data);
-        if (data.getCount() > 0) {
-//            progressBar.dismiss();
+
+        if (data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {
+            data.moveToFirst();
+            Log.d(LOG_TAG, "Dual Pane Detected.");
+            final int MOVIE_ID_COL = data.getColumnIndex(MovieContract.MovieEntry._ID);
+            firstMovieUri = MovieContract.MovieEntry.buildMovieWithId(data.getInt(MOVIE_ID_COL));
         }
+
+        progressDialog.dismiss();
     }
 
     @Override

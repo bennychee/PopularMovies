@@ -132,7 +132,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+//        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
     @Override

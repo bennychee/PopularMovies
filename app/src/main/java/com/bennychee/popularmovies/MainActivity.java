@@ -1,5 +1,7 @@
 package com.bennychee.popularmovies;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,7 +13,7 @@ import android.view.MenuItem;
 
 import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
 
     private boolean mTwoPane;
     private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
@@ -20,10 +22,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 */
+
         if (findViewById(R.id.movie_detail_container) != null) {
             mTwoPane = true;
             if (savedInstanceState == null) {
@@ -65,5 +69,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         PopMovieDetailActivityFragment popMovieDetailActivityFragment = (PopMovieDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(POPMOVIEFRAGMENT_TAG);
+    }
+
+    @Override
+    public void onItemSelected(Uri contentUri) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable(PopMovieDetailActivityFragment.DETAIL_URI, contentUri);
+
+            PopMovieDetailActivityFragment fragment = new PopMovieDetailActivityFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, POPMOVIEFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, PopMovieDetailActivity.class)
+                    .setData(contentUri);
+            startActivity(intent);
+        }
     }
 }
