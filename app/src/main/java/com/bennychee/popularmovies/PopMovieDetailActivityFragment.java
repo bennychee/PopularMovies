@@ -124,7 +124,7 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
         if (mUri != null) {
             int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-            loadMovieRetrofitFragment.LoadMovieRetrofit(this.getContext(), movieId, mUri);
+            loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
         }
 
         tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);

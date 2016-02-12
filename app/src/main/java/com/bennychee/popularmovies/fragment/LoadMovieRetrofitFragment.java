@@ -46,7 +46,8 @@ public class LoadMovieRetrofitFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);EventBus.getDefault().register(this);
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
 
     }
 

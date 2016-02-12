@@ -104,7 +104,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
         });
 
-
         Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
         if(getResources().getBoolean(R.bool.dual_pane)) {
