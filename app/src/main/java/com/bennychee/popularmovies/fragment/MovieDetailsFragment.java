@@ -17,6 +17,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,23 +31,10 @@ import android.widget.TextView;
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
-import com.bennychee.popularmovies.adapters.ReviewAdapter;
-import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.api.MovieService;
-import com.bennychee.popularmovies.api.models.review.MovieReviews;
-import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
-import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
-import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
-import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
-import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
-import com.bennychee.popularmovies.event.TrailerEvent;
-import com.commonsware.cwac.merge.MergeAdapter;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -66,15 +54,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
     private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
-/*
-    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR  = 0.9f;
-    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS     = 0.3f;
-    private static final int ALPHA_ANIMATIONS_DURATION              = 200;
-
-    private boolean mIsTheTitleVisible          = false;
-    private boolean mIsTheTitleContainerVisible = true;
-
-*/
     private LinearLayout mTitleContainer;
     private TextView mTitle;
     private TextView mDescription;
@@ -86,6 +65,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     private TextView mMovieYear;
     private TextView mMovieRating;
     private TextView mVotes;
+
+    private Toolbar backToolbar;
 
     private FloatingActionButton favButton;
 
@@ -154,19 +135,16 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         mMovieYear = (TextView) rootView.findViewById(R.id.movie_year);
         mVotes = (TextView) rootView.findViewById(R.id.movie_votes);
 
+        backToolbar = (Toolbar) rootView.findViewById(R.id.flexible_example_toolbar);
         favButton = (FloatingActionButton) rootView.findViewById(R.id.movie_favorite);
 
-    /*    progressBar = new ProgressDialog(rootView.getContext());
-        progressBar.setCancelable(true);
-        progressBar.setMessage("Retrieving Movie Details");
-        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        progressBar.show();
-*/
         Intent intent = getActivity().getIntent();
         if (intent == null) {
             return null;
+        }
+
+        if (getResources().getBoolean(R.bool.dual_pane)) {
+            backToolbar.setVisibility(View.INVISIBLE);
         }
 
         return rootView;
