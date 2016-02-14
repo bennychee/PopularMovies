@@ -1,5 +1,6 @@
 package com.bennychee.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -76,12 +77,19 @@ public class PopMovieDetailActivityFragment extends Fragment {
     MovieTrailerFragment movieTrailerFragment;
     LoadMovieRetrofitFragment loadMovieRetrofitFragment;
 
+    private int reviewCount = 0;
+    private int runtimeCount = 0;
+    private int trailerCount = 0;
+    private final int RETRY_COUNT = 5;
+
     static final String DETAIL_URI = "URI";
 
     private Uri mUri;
     private int movieId;
 
     private ListView mListView;
+
+    private MovieService service;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -114,9 +122,11 @@ public class PopMovieDetailActivityFragment extends Fragment {
             movieReviewFragment = new MovieReviewFragment();
             movieReviewFragment.setArguments(args);
 
+/*
             args.putParcelable(LoadMovieRetrofitFragment.DETAIL_URI, mUri);
             loadMovieRetrofitFragment = new LoadMovieRetrofitFragment();
             loadMovieRetrofitFragment.setArguments(args);
+*/
         }
 
         // Inflate the layout for this fragment
@@ -127,8 +137,41 @@ public class PopMovieDetailActivityFragment extends Fragment {
             int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
             loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
 */
-
             //TODO start loadMovieRetrofitFragment here
+
+            int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
+
+            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
+            String baseUrl = BuildConfig.API_BASE_URL;
+
+            Log.d(LOG_TAG, "Base URL = " + baseUrl);
+            Log.d(LOG_TAG, "API Key = " + apiKey);
+            Log.d(LOG_TAG, "Movie ID = " + movieId);
+
+            if (mUri != null) {
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(baseUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+                service = retrofit.create(MovieService.class);
+            }
+
+            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+                MovieRuntime(getContext(), movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
+            }
+
+            if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
+                MovieTrailers(getContext(), movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
+            }
+
+            if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
+                MovieReview(getContext(), movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
+            }
 
         }
 
@@ -201,5 +244,101 @@ public class PopMovieDetailActivityFragment extends Fragment {
             return mNumOfTabs;
         }
     }
+
+
+    private void MovieRuntime(final Context context, final int movieId, final String apiKey, final MovieService service) {
+        Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
+        movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
+            @Override
+            public void onResponse(Response<MovieRuntime> response) {
+                Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
+                if (!response.isSuccess()) {
+                    Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
+                    if (runtimeCount< RETRY_COUNT) {
+                        //Retry 3 times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + runtimeCount);
+                        MovieRuntime(context, movieId, apiKey, service);
+                        runtimeCount++;
+                    }
+                } else {
+                    int runtime = response.body().getRuntime();
+                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
+                    Utility.updateMovieWithRuntime(context, movieId, runtime);
+                    EventBus.getDefault().post(new RuntimeEvent(true));
+                    Log.d(LOG_TAG, "EventBus posted");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
+                EventBus.getDefault().post(new RuntimeEvent(false));
+            }
+        });
+    }
+
+    private void MovieTrailers(final Context context, final int movieId, final String apiKey, final MovieService service) {
+        Call<MovieTrailers> movieTrailersCall = service.getMovieTrailer(movieId, apiKey);
+        movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
+            @Override
+            public void onResponse(Response<MovieTrailers> response) {
+                Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
+                if (!response.isSuccess()) {
+                    Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
+                    if (trailerCount < RETRY_COUNT) {
+                        //Retry 3 times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + trailerCount);
+                        MovieTrailers(context, movieId, apiKey, service);
+                        trailerCount++;
+                    }
+                } else {
+                    List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
+                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
+                    Utility.storeTrailerList(context, movieId, trailersResultList);
+                    EventBus.getDefault().post(new TrailerEvent(true));
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
+                EventBus.getDefault().post(new TrailerEvent(false));
+            }
+        });
+
+    }
+
+    private void MovieReview (final Context context, final int movieId, final String apiKey, final MovieService service) {
+        Call<MovieReviews> movieReviewsCall = service.getMovieReview(movieId, apiKey);
+        movieReviewsCall.enqueue(new Callback<MovieReviews>() {
+            @Override
+            public void onResponse(Response<MovieReviews> response) {
+                Log.d(LOG_TAG, "Movie Reviews Response Status: " + response.code());
+                if (!response.isSuccess()) {
+                    Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
+                    if (reviewCount < RETRY_COUNT) {
+                        //Retry RETRY_COUNT times
+                        Log.d(LOG_TAG, "Retry Retrofit service #" + reviewCount);
+                        MovieReview(context, movieId, apiKey, service);
+                        reviewCount++;
+                    }
+                } else {
+                    List<Result> reviewResultList = response.body().getResults();
+                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
+                    Utility.storeCommentList(context, movieId, reviewResultList);
+                    EventBus.getDefault().post(new ReviewEvent(true));
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
+                EventBus.getDefault().post(new ReviewEvent(false));
+            }
+        });
+    }
+
+
+
 }
 
