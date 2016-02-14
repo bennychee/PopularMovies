@@ -123,8 +123,13 @@ public class PopMovieDetailActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.tab_layout, container, false);
 
         if (mUri != null) {
+/*
             int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
             loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
+*/
+
+            //TODO start loadMovieRetrofitFragment here
+
         }
 
         tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);

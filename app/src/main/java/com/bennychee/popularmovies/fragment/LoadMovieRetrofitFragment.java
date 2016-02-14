@@ -40,6 +40,9 @@ public class LoadMovieRetrofitFragment extends Fragment {
 
     private final int RETRY_COUNT = 5;
 
+    private Uri mUri;
+    private MovieService service;
+
     public  LoadMovieRetrofitFragment() {
         setHasOptionsMenu(true);
     }
@@ -49,9 +52,13 @@ public class LoadMovieRetrofitFragment extends Fragment {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
 
-    }
+        Bundle arguments = getArguments();
 
-    public void LoadMovieRetrofit (Context context, int movieId, Uri mUri) {
+        if (arguments != null) {
+            mUri = arguments.getParcelable(MovieDetailsFragment.DETAIL_URI);
+        }
+
+        int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
 
         String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
         String baseUrl = BuildConfig.API_BASE_URL;
@@ -67,23 +74,28 @@ public class LoadMovieRetrofitFragment extends Fragment {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
-            MovieService service = retrofit.create(MovieService.class);
-
-            if (Utility.checkRuntimeFromUri(context, mUri) <= 0) {
-                MovieRuntime(context, movieId, apiKey, service);
-                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
-            }
-
-            if (Utility.checkTrailerFromUri(context, mUri) <= 0) {
-                MovieTrailers(context, movieId, apiKey, service);
-                Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
-            }
-
-            if (Utility.checkReviewFromUri(context, mUri) <= 0) {
-                MovieReview(context, movieId, apiKey, service);
-                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
-            }
+            service = retrofit.create(MovieService.class);
         }
+
+        if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+            MovieRuntime(getContext(), movieId, apiKey, service);
+            Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
+        }
+
+        if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
+            MovieTrailers(getContext(), movieId, apiKey, service);
+            Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
+        }
+
+        if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
+            MovieReview(getContext(), movieId, apiKey, service);
+            Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
+        }
+
+    }
+
+    public void LoadMovieRetrofit (Context context, int movieId, Uri mUri) {
+
     }
 
     private void MovieRuntime(final Context context, final int movieId, final String apiKey, final MovieService service) {
