@@ -75,7 +75,7 @@ public class PopMovieDetailActivityFragment extends Fragment {
     MovieDetailsFragment movieDetailsFragment;
     MovieReviewFragment movieReviewFragment;
     MovieTrailerFragment movieTrailerFragment;
-    LoadMovieRetrofitFragment loadMovieRetrofitFragment;
+//    LoadMovieRetrofitFragment loadMovieRetrofitFragment;
 
     private int reviewCount = 0;
     private int runtimeCount = 0;
@@ -133,11 +133,7 @@ public class PopMovieDetailActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.tab_layout, container, false);
 
         if (mUri != null) {
-/*
-            int movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-            loadMovieRetrofitFragment.LoadMovieRetrofit(getActivity(), movieId, mUri);
-*/
-            //TODO start loadMovieRetrofitFragment here
+            Log.d(LOG_TAG, "URI: " + mUri.toString());
 
             int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
 
@@ -148,15 +144,13 @@ public class PopMovieDetailActivityFragment extends Fragment {
             Log.d(LOG_TAG, "API Key = " + apiKey);
             Log.d(LOG_TAG, "Movie ID = " + movieId);
 
-            if (mUri != null) {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
 
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(baseUrl)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                service = retrofit.create(MovieService.class);
-            }
+            service = retrofit.create(MovieService.class);
+            Log.d(LOG_TAG, "Retrofit Service: Started");
 
             if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
                 MovieRuntime(getContext(), movieId, apiKey, service);
@@ -265,7 +259,8 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
                     EventBus.getDefault().post(new RuntimeEvent(true));
-                    Log.d(LOG_TAG, "EventBus posted");
+                    //Log.d(LOG_TAG, "EventBus posted");
+
                 }
             }
 
