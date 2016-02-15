@@ -97,42 +97,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.tab_layout, container, false);
 
-        if (mUri != null) {
-            Log.d(LOG_TAG, "URI: " + mUri.toString());
-
-            int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
-
-            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
-            String baseUrl = BuildConfig.API_BASE_URL;
-
-            Log.d(LOG_TAG, "Base URL = " + baseUrl);
-            Log.d(LOG_TAG, "API Key = " + apiKey);
-            Log.d(LOG_TAG, "Movie ID = " + movieId);
-
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(baseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            service = retrofit.create(MovieService.class);
-            Log.d(LOG_TAG, "Retrofit Service: Started");
-
-//            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
-                MovieRuntime(getContext(), movieId, apiKey, service);
-//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not  in DB");
-//            }
-
-//            if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
-                MovieTrailers(getContext(), movieId, apiKey, service);
- //               Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found in DB");
- //           }
-
-//            if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
-                MovieReview(getContext(), movieId, apiKey, service);
-//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found in DB");
-//            }
-        }
-
         tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         tabLayout.addTab(tabLayout.newTab().setText("Details"));
         tabLayout.addTab(tabLayout.newTab().setText("Trailers"));
@@ -183,6 +147,42 @@ public class PopMovieDetailActivityFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if (mUri != null) {
+            Log.d(LOG_TAG, "URI: " + mUri.toString());
+
+            int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
+
+            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
+            String baseUrl = BuildConfig.API_BASE_URL;
+
+            Log.d(LOG_TAG, "Base URL = " + baseUrl);
+            Log.d(LOG_TAG, "API Key = " + apiKey);
+            Log.d(LOG_TAG, "Movie ID = " + movieId);
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            service = retrofit.create(MovieService.class);
+            Log.d(LOG_TAG, "Retrofit Service: Started");
+
+//            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+            MovieRuntime(getContext(), movieId, apiKey, service);
+//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not  in DB");
+//            }
+
+//            if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
+//                MovieTrailers(getContext(), movieId, apiKey, service);
+            //               Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found in DB");
+            //           }
+
+//            if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
+//                MovieReview(getContext(), movieId, apiKey, service);
+//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found in DB");
+//            }
+        }
     }
 
     public class MovieViewPagerAdapter extends FragmentStatePagerAdapter {
@@ -292,6 +292,7 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(context, movieId, reviewResultList);
+                    reviewResultList.clear();
                     //EventBus.getDefault().post(new ReviewEvent(true));
                 }
             }

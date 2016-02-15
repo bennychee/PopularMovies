@@ -88,8 +88,15 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
 //        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, LOG_TAG + "onActivityCreated");
+        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -112,7 +119,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
         mDescription = (TextView) rootView.findViewById(R.id.movie_desc);
 
-        posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);        backdropImageView = (ImageView) rootView.findViewById(R.id.detail_backdrop_image);
+        posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);
+        backdropImageView = (ImageView) rootView.findViewById(R.id.detail_backdrop_image);
 
         mMovieRating = (TextView) rootView.findViewById(R.id.movie_rating);
         mMovieRuntime = (TextView) rootView.findViewById(R.id.movie_runtime);
@@ -125,8 +133,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         if (getResources().getBoolean(R.bool.dual_pane)) {
             backToolbar.setVisibility(View.INVISIBLE);
         }
-
-        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
 
         return rootView;
     }
@@ -159,7 +165,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        null,
+                        MOVIE_DETAIL_COLUMNS,
                         null,
                         null,
                         null
@@ -173,16 +179,17 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
             case MOVIE_DETAIL_LOADER:
-                Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
-                data.moveToFirst();
-                LoadMovieDetailView(data);
+                if (data != null && data.moveToFirst()) {
+                    Log.d(LOG_TAG, data.toString());
+                    Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
+                    LoadMovieDetailView(data);
+                }
                 break;
         }
     }
 
     private void LoadMovieDetailView(Cursor data) {
-        if (data != null && data.moveToFirst()) {
-
+            Log.d(LOG_TAG, "Inside LoadMovieDetailView");
             final int _ID = data.getInt(data.getColumnIndex(MovieEntry._ID));
             String title = data.getString(data.getColumnIndex(MovieEntry.COLUMN_TITLE));
             Log.d(LOG_TAG, "Title: " + title);
@@ -276,8 +283,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                     }
                 }
             });
-
-        }
     }
 
     @Override

@@ -29,10 +29,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private PopMovieAdapter popMovieAdapter;
     private GridView popMoviesGridView;
-    public static final int MOVIE_LOADER = 0;
+    public static final int MOVIE_LOADER = 3;
     private Uri firstMovieUri;
+    private boolean firstEntry = true;
 
     private int count = 1;
+    private int mPosition = GridView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "selected_position";
 
     private ProgressDialog progressDialog;
 
@@ -87,8 +90,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                if (getResources().getBoolean(R.bool.dual_pane)) {
-                    Log.d(LOG_TAG, "Progress Dialog Dimissed. Doing work!");
+                if (firstEntry && getResources().getBoolean(R.bool.dual_pane)) {
+                    Log.d(LOG_TAG, "Progress Dialog Dismissed. Doing work!");
                     ((Callback) getActivity())
                             .onItemSelected(firstMovieUri);
                 }
@@ -111,64 +114,89 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor currentPos = (Cursor) parent.getItemAtPosition(position);
                 if (currentPos != null) {
-//                    Intent movieDetailIntent = new Intent(getActivity(), PopMovieDetailActivity.class);
                     final int MOVIE_ID_COL = currentPos.getColumnIndex(MovieContract.MovieEntry._ID);
                     Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentPos.getInt(MOVIE_ID_COL));
+                    firstEntry = false;
 
                     ((Callback) getActivity())
                             .onItemSelected(movieUri);
-/*
-                    movieDetailIntent.setData(movieUri);
-                    startActivity(movieDetailIntent);
-*/
                 }
+                mPosition = position;
             }
         });
 
-/*
-        if((getResources().getBoolean(R.bool.dual_pane)) && count == 1) {
-            Intent movieDetailIntent = new Intent(getActivity(), PopMovieDetailActivity.class);
-            Uri movieUri = MovieContract.MovieEntry.buildMovieWithId();
-            count = 0;
+        // If there's instance state, mine it for useful information.
+        // The end-goal here is that the user never knows that turning their device sideways
+        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*.
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The gridview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
-*/
+
         return rootView;
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String sortOrderSetting = Utility.getPreferredSortOrder(getActivity());
-        String sortOrder;
-        final int NUMBER_OF_MOVIES = 20;
-
-        if (sortOrderSetting.equals(getString(R.string.prefs_sort_default_value))) {
-            sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-        } else {
-            //sort by rating
-            sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to GridView.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
         }
+        super.onSaveInstanceState(outState);
+    }
 
-        return new CursorLoader(getActivity(),
-                MovieContract.MovieEntry.CONTENT_URI,
-                new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_IMAGE_URL},
-                null,
-                null,
-                sortOrder + " LIMIT " + NUMBER_OF_MOVIES);
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == MOVIE_LOADER) {
+            String sortOrderSetting = Utility.getPreferredSortOrder(getActivity());
+            String sortOrder;
+            final int NUMBER_OF_MOVIES = 20;
+
+            if (sortOrderSetting.equals(getString(R.string.prefs_sort_default_value))) {
+                sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+            } else {
+                //sort by rating
+                sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+            }
+
+            return new CursorLoader(getActivity(),
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_IMAGE_URL},
+                    null,
+                    null,
+                    sortOrder + " LIMIT " + NUMBER_OF_MOVIES);
+        } else {
+            return null;
+        }
     }
 
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        popMovieAdapter.swapCursor(data);
+        if (loader.getId() == MOVIE_LOADER) {
+            Log.d(LOG_TAG, LOG_TAG + " onLoadFinished");
+            popMovieAdapter.swapCursor(data);
 
-        if (data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {
-            data.moveToFirst();
-            Log.d(LOG_TAG, "Dual Pane Detected.");
-            final int MOVIE_ID_COL = data.getColumnIndex(MovieContract.MovieEntry._ID);
-            firstMovieUri = MovieContract.MovieEntry.buildMovieWithId(data.getInt(MOVIE_ID_COL));
+            if (mPosition != GridView.INVALID_POSITION) {
+                // If we don't need to restart the loader, and there's a desired position to restore
+                // to, do so now.
+                popMoviesGridView.smoothScrollToPosition(mPosition);
+            }
+
+            if (firstEntry && data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {
+                data.moveToFirst();
+                Log.d(LOG_TAG, "1st Entry detected. Dual pane mode detected.");
+                final int MOVIE_ID_COL = data.getColumnIndex(MovieContract.MovieEntry._ID);
+                firstMovieUri = MovieContract.MovieEntry.buildMovieWithId(data.getInt(MOVIE_ID_COL));
+            }
+            progressDialog.dismiss();
         }
-
-        progressDialog.dismiss();
     }
 
     @Override
