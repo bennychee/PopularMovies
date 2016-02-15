@@ -190,6 +190,7 @@ public class LoadMovieRetrofitFragment extends Fragment {
         });
     }
 
+/*
     public void onEvent(ReviewEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Retrofit done, load the review loader!");
@@ -214,6 +215,7 @@ public class LoadMovieRetrofitFragment extends Fragment {
             Log.d(LOG_TAG, "Event Message - " + event.toString());
         }
     }
+*/
 
     @Override
     public void onDestroy() {

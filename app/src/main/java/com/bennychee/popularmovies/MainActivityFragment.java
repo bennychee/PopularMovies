@@ -2,10 +2,8 @@ package com.bennychee.popularmovies;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -23,15 +21,6 @@ import android.widget.GridView;
 import com.bennychee.popularmovies.adapters.PopMovieAdapter;
 import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.sync.MovieSyncAdapter;
-
-import org.json.JSONException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -63,7 +52,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
     }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         //TODO: inflater.inflate(R.menu.menu_pop_movies, menu);
@@ -88,6 +76,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Log.d(LOG_TAG, LOG_TAG);
+
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         progressDialog = new ProgressDialog(getActivity());

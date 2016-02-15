@@ -35,7 +35,7 @@ public class PopMovieAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        Log.d(LOG_TAG, "binding view: " + view.toString());
+//        Log.d(LOG_TAG, "binding view: " + view.toString());
         ImageView posterImageView = (ImageView) view.findViewById(R.id.poster_image);
 
         int posterColumn = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URL);

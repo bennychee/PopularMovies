@@ -1,12 +1,9 @@
 package com.bennychee.popularmovies.api;
 
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieModel;
-import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
+import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

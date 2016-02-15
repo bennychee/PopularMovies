@@ -1,51 +1,34 @@
 package com.bennychee.popularmovies.fragment;
 
-
 import android.app.ProgressDialog;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
-import com.bennychee.popularmovies.api.MovieService;
-import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
 import de.greenrobot.event.EventBus;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.GsonConverterFactory;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -113,6 +96,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        Log.d(LOG_TAG, LOG_TAG);
+
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(MovieDetailsFragment.DETAIL_URI);
@@ -127,8 +112,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
         mDescription = (TextView) rootView.findViewById(R.id.movie_desc);
 
-        posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);
-        backdropImageView = (ImageView) rootView.findViewById(R.id.detail_backdrop_image);
+        posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);        backdropImageView = (ImageView) rootView.findViewById(R.id.detail_backdrop_image);
 
         mMovieRating = (TextView) rootView.findViewById(R.id.movie_rating);
         mMovieRuntime = (TextView) rootView.findViewById(R.id.movie_runtime);
@@ -138,14 +122,11 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         backToolbar = (Toolbar) rootView.findViewById(R.id.flexible_example_toolbar);
         favButton = (FloatingActionButton) rootView.findViewById(R.id.movie_favorite);
 
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
-        }
-
         if (getResources().getBoolean(R.bool.dual_pane)) {
             backToolbar.setVisibility(View.INVISIBLE);
         }
+
+        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
 
         return rootView;
     }
@@ -153,8 +134,12 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     public void onEvent(RuntimeEvent event) {
         if (event.isRetrofitCompleted) {
             Log.d(LOG_TAG, "Event Message - Retrofit done, load the movie detail loader!");
-            getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
-  //          progressBar.dismiss();
+            if (getLoaderManager().getLoader(MOVIE_DETAIL_LOADER) == null) {
+                getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
+            } else {
+                getLoaderManager().restartLoader(MOVIE_DETAIL_LOADER, null, this);
+            }
+
         } else {
             Log.d(LOG_TAG, "Event Message - " + event.toString());
         }
@@ -165,15 +150,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        //fetch movie details on-the-fly and store in DB
-//        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
-        //LoadMovieDetails(movieId);
-        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
-
-        super.onActivityCreated(savedInstanceState);
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -183,7 +159,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        //MovieEntry.CONTENT_URI,
                         null,
                         null,
                         null,
@@ -199,6 +174,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         switch (loader.getId()) {
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
+                data.moveToFirst();
                 LoadMovieDetailView(data);
                 break;
         }
@@ -311,63 +287,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                 Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
                 break;
         }
-    }
-
-
-    private void LoadMovieDetails (final int movieId) {
-
-        // check runtime from DB for movie ID so that if it is found in DB, no retrieval required
-        if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
-            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
-            String baseUrl = BuildConfig.API_BASE_URL;
-
-            Log.d(LOG_TAG, "Base URL = " + baseUrl);
-            Log.d(LOG_TAG, "API Key = " + apiKey);
-
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(baseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            final MovieService service = retrofit.create(MovieService.class);
-
-//            MovieRuntime(movieId, apiKey, service);
-        } else {
-            Log.d(LOG_TAG, "Info in DB. No Retrofit callback required");
-            EventBus.getDefault().post(new RuntimeEvent(true));
-        }
-    }
-
-    private void MovieRuntime(final int movieId, final String apiKey, final MovieService service) {
-        Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
-        movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
-            @Override
-            public void onResponse(Response<MovieRuntime> response) {
-                Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
-                if (!response.isSuccess()) {
-                    Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
-                    if (count < 3) {
-                        //Retry 3 times
-                        Log.d(LOG_TAG, "Retry Retrofit service #" + count);
-                        MovieRuntime(movieId, apiKey, service);
-                        count++;
-                    }
-                } else {
-                    int runtime = response.body().getRuntime();
-                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
-                    Utility.updateMovieWithRuntime(getContext(), movieId, runtime);
-                    EventBus.getDefault().post(new RuntimeEvent(true));
-                    Log.d(LOG_TAG, "EventBus posted");
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
-                EventBus.getDefault().post(new RuntimeEvent(false));
-            }
-        });
-
     }
 }
 

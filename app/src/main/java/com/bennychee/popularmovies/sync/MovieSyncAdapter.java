@@ -34,7 +34,6 @@ import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -43,8 +42,6 @@ import retrofit2.Callback;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
-
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     public final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
@@ -151,15 +148,15 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     int runtime = response.body().getRuntime();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
-                    EventBus.getDefault().post(new RuntimeEvent(true));
-                    Log.d(LOG_TAG, "EventBus posted");
+//                    EventBus.getDefault().post(new RuntimeEvent(true));
+//                    Log.d(LOG_TAG, "EventBus posted");
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
-                EventBus.getDefault().post(new RuntimeEvent(false));
+//                EventBus.getDefault().post(new RuntimeEvent(false));
             }
         });
     }
@@ -190,14 +187,14 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(context, movieId, trailersResultList);
-                    EventBus.getDefault().post(new TrailerEvent(true));
+//                    EventBus.getDefault().post(new TrailerEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
-                EventBus.getDefault().post(new TrailerEvent(false));
+//                EventBus.getDefault().post(new TrailerEvent(false));
             }
         });
 
@@ -229,14 +226,14 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(context, movieId, reviewResultList);
-                    EventBus.getDefault().post(new ReviewEvent(true));
+//                    EventBus.getDefault().post(new ReviewEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
-                EventBus.getDefault().post(new ReviewEvent(false));
+ //               EventBus.getDefault().post(new ReviewEvent(false));
             }
         });
     }

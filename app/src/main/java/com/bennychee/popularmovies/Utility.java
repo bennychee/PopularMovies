@@ -8,12 +8,12 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieResult;
 import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.data.MovieContract;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A list of utility methods used through the application

@@ -1,63 +1,33 @@
 package com.bennychee.popularmovies;
 
 import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bennychee.popularmovies.adapters.ReviewAdapter;
-import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
+import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.api.models.review.Result;
-import com.bennychee.popularmovies.data.MovieContract;
-import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
-import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
-import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
-
 import com.bennychee.popularmovies.event.ReviewEvent;
 import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.bennychee.popularmovies.event.TrailerEvent;
-import com.bennychee.popularmovies.fragment.LoadMovieRetrofitFragment;
 import com.bennychee.popularmovies.fragment.MovieDetailsFragment;
 import com.bennychee.popularmovies.fragment.MovieReviewFragment;
 import com.bennychee.popularmovies.fragment.MovieTrailerFragment;
-import com.commonsware.cwac.merge.MergeAdapter;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.google.android.youtube.player.YouTubePlayerView;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import butterknife.Bind;
 import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,7 +45,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
     MovieDetailsFragment movieDetailsFragment;
     MovieReviewFragment movieReviewFragment;
     MovieTrailerFragment movieTrailerFragment;
-//    LoadMovieRetrofitFragment loadMovieRetrofitFragment;
 
     private int reviewCount = 0;
     private int runtimeCount = 0;
@@ -103,6 +72,8 @@ public class PopMovieDetailActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        Log.d(LOG_TAG, LOG_TAG);
+
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(PopMovieDetailActivityFragment.DETAIL_URI);
@@ -121,12 +92,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
             args.putParcelable(MovieReviewFragment.DETAIL_URI, mUri);
             movieReviewFragment = new MovieReviewFragment();
             movieReviewFragment.setArguments(args);
-
-/*
-            args.putParcelable(LoadMovieRetrofitFragment.DETAIL_URI, mUri);
-            loadMovieRetrofitFragment = new LoadMovieRetrofitFragment();
-            loadMovieRetrofitFragment.setArguments(args);
-*/
         }
 
         // Inflate the layout for this fragment
@@ -152,21 +117,20 @@ public class PopMovieDetailActivityFragment extends Fragment {
             service = retrofit.create(MovieService.class);
             Log.d(LOG_TAG, "Retrofit Service: Started");
 
-            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+//            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
                 MovieRuntime(getContext(), movieId, apiKey, service);
-                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not found");
-            }
+//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not  in DB");
+//            }
 
-            if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
+//            if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
                 MovieTrailers(getContext(), movieId, apiKey, service);
-                Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found");
-            }
+ //               Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailer not found in DB");
+ //           }
 
-            if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
+//            if (Utility.checkReviewFromUri(getContext(), mUri) <= 0) {
                 MovieReview(getContext(), movieId, apiKey, service);
-                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found");
-            }
-
+//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Review not found in DB");
+//            }
         }
 
         tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
@@ -176,6 +140,8 @@ public class PopMovieDetailActivityFragment extends Fragment {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         viewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
+
+        viewPager.setOffscreenPageLimit(tabLayout.getTabCount());
 
         MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(this.getFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(movieViewPagerAdapter);
@@ -198,11 +164,19 @@ public class PopMovieDetailActivityFragment extends Fragment {
             }
         });
 
+
         return rootView;
     }
 
     @Override
+    public void onPause() {
+        //EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy() {
+        //EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
@@ -239,7 +213,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
         }
     }
 
-
     private void MovieRuntime(final Context context, final int movieId, final String apiKey, final MovieService service) {
         Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
         movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
@@ -258,16 +231,15 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     int runtime = response.body().getRuntime();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
-                    EventBus.getDefault().post(new RuntimeEvent(true));
-                    //Log.d(LOG_TAG, "EventBus posted");
-
+                    //EventBus.getDefault().post(new RuntimeEvent(true));
+                    //Log.d(LOG_TAG, "Runtime EventBus posted");
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
-                EventBus.getDefault().post(new RuntimeEvent(false));
+                //EventBus.getDefault().post(new RuntimeEvent(false));
             }
         });
     }
@@ -290,17 +262,16 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(context, movieId, trailersResultList);
-                    EventBus.getDefault().post(new TrailerEvent(true));
+                    //EventBus.getDefault().post(new TrailerEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
-                EventBus.getDefault().post(new TrailerEvent(false));
+                //EventBus.getDefault().post(new TrailerEvent(false));
             }
         });
-
     }
 
     private void MovieReview (final Context context, final int movieId, final String apiKey, final MovieService service) {
@@ -321,19 +292,15 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(context, movieId, reviewResultList);
-                    EventBus.getDefault().post(new ReviewEvent(true));
+                    //EventBus.getDefault().post(new ReviewEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
-                EventBus.getDefault().post(new ReviewEvent(false));
+                //EventBus.getDefault().post(new ReviewEvent(false));
             }
         });
     }
-
-
-
 }
-

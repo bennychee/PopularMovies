@@ -1,8 +1,10 @@
 
 package com.bennychee.popularmovies.api.models.runtime;
-;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+;
 
 public class Genre {
 

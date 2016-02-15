@@ -2,20 +2,15 @@ package com.bennychee.popularmovies.fragment;
 
 
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RecoverySystem;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,26 +25,12 @@ import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.ReviewAdapter;
-import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.review.Result;
-import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
-import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
-import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.event.ReviewEvent;
-import com.bennychee.popularmovies.event.RuntimeEvent;
-import com.bennychee.popularmovies.event.TrailerEvent;
-import com.commonsware.cwac.merge.MergeAdapter;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -131,7 +112,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
 //        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
@@ -176,11 +157,6 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         progressBar.show();
 */
 
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
-        }
-
         Cursor reviewCursor = getActivity().getContentResolver().query(
                 ReviewEntry.CONTENT_URI,
                 null,
@@ -192,22 +168,18 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         reviewAdapter = new ReviewAdapter(getActivity(), reviewCursor, 0);
         reviewListView.setAdapter(reviewAdapter);
 
+        getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
+
         return rootView;
     }
 
     public void onEvent(ReviewEvent event) {
         if (event.isRetrofitCompleted) {
-            Log.d(LOG_TAG, "Retrofit done, load the review loader!");
+            Log.d(LOG_TAG, event.toString() + " Retrofit done, load the review loader!");
             getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
         } else {
-
+            Log.d(LOG_TAG, "Event Message - " + event.toString());
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 
     @Override
@@ -215,7 +187,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         //fetch movie details on-the-fly and store in DB
 //        movieId = Utility.fetchMovieIdFromUri(getActivity(), mUri);
 //        LoadMovieDetails(movieId);
-        getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
+//        getLoaderManager().initLoader(REVIEW_DETAIL_LOADER, null, this);
 
         super.onActivityCreated(savedInstanceState);
     }
@@ -265,6 +237,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         }
     }
 
+/*
     private void LoadMovieDetails (final int movieId) {
 
         // check runtime from DB for movie ID so that if it is found in DB, no retrieval required
@@ -316,105 +289,6 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
                 EventBus.getDefault().post(new ReviewEvent(false));
             }
         });
-    }
-
-/*
-    private void MovieRuntime(final int movieId, String apiKey, MovieService service) {
-        Call<MovieRuntime> movieRuntimeCall = service.getMovieRuntime(movieId, apiKey);
-        movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
-            @Override
-            public void onResponse(Response<MovieRuntime> response) {
-                Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
-                if (!response.isSuccess()) {
-                    Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
-                } else {
-                    int runtime = response.body().getRuntime();
-                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
-                    Utility.updateMovieWithRuntime(getContext(), movieId, runtime);
-                    EventBus.getDefault().post(new RuntimeEvent(true));
-                    Log.d(LOG_TAG, "EventBus posted");
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
-                EventBus.getDefault().post(new RuntimeEvent(false));
-            }
-        });
-
-    }
-*/
-
-/*
-    @Override
-    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
-        Log.d(LOG_TAG, "Youtube play initialized.");
-        youTubePlayer.cueVideo(youtubeKey);
-    }
-
-    @Override
-    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-        if (youTubeInitializationResult.isUserRecoverableError()) {
-            youTubeInitializationResult.getErrorDialog(getActivity(), 1).show();
-        } else {
-//            String errorMessage = String.format(getString(R.string.youtube_error), youTubeInitializationResult.toString());
-            //Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-        }
-    }
-*/
-
-/*
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
-        int maxScroll = appBarLayout.getTotalScrollRange();
-        float percentage = (float) Math.abs(offset) / (float) maxScroll;
-
-        handleAlphaOnTitle(percentage);
-        handleToolbarTitleVisibility(percentage);
-    }
-
-    private void handleToolbarTitleVisibility(float percentage) {
-        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
-
-            if(!mIsTheTitleVisible) {
-                startAlphaAnimation(mTitle, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
-                mIsTheTitleVisible = true;
-            }
-
-        } else {
-
-            if (mIsTheTitleVisible) {
-                startAlphaAnimation(mTitle, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
-                mIsTheTitleVisible = false;
-            }
-        }
-    }
-
-    private void handleAlphaOnTitle(float percentage) {
-        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
-            if(mIsTheTitleContainerVisible) {
-                startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
-                mIsTheTitleContainerVisible = false;
-            }
-
-        } else {
-
-            if (!mIsTheTitleContainerVisible) {
-                startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
-                mIsTheTitleContainerVisible = true;
-            }
-        }
-    }
-
-    public static void startAlphaAnimation (View v, long duration, int visibility) {
-        AlphaAnimation alphaAnimation = (visibility == View.VISIBLE)
-                ? new AlphaAnimation(0f, 1f)
-                : new AlphaAnimation(1f, 0f);
-
-        alphaAnimation.setDuration(duration);
-        alphaAnimation.setFillAfter(true);
-        v.startAnimation(alphaAnimation);
     }
 */
 }

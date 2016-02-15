@@ -3,11 +3,8 @@ package com.bennychee.popularmovies;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,11 +14,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     private boolean mTwoPane;
     private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
+    private String LOG_TAG = MainActivity.class.toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(LOG_TAG, LOG_TAG);
 
 /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -79,6 +79,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
             PopMovieDetailActivityFragment fragment = new PopMovieDetailActivityFragment();
             fragment.setArguments(args);
+
+            Log.d(LOG_TAG, "Inside Callback - onItemSelected");
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, fragment, POPMOVIEFRAGMENT_TAG)

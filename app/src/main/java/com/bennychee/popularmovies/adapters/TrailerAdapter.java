@@ -14,7 +14,6 @@ import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.YoutubeLightBox;
 import com.bennychee.popularmovies.data.MovieContract;
-
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubeThumbnailLoader;
 import com.google.android.youtube.player.YouTubeThumbnailView;
