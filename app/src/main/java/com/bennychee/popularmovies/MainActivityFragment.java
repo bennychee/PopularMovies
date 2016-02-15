@@ -63,7 +63,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
-        updateMovies();
+//        updateMovies();
     }
 
     private void updateMovies() {

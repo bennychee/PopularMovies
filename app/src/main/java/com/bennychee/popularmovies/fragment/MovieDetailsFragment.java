@@ -180,9 +180,12 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         switch (loader.getId()) {
             case MOVIE_DETAIL_LOADER:
                 if (data != null && data.moveToFirst()) {
-                    Log.d(LOG_TAG, data.toString());
+                    Log.d(LOG_TAG, "Data Position: " + data.getPosition());
                     Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                     LoadMovieDetailView(data);
+                    if (data != null) {
+                        data.close();
+                    }
                 }
                 break;
         }
