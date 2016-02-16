@@ -95,7 +95,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.d(LOG_TAG, LOG_TAG + "onActivityCreated");
-        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
+        getLoaderManager().restartLoader(MOVIE_DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -137,20 +137,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         return rootView;
     }
 
-    public void onEvent(RuntimeEvent event) {
-        if (event.isRetrofitCompleted) {
-            Log.d(LOG_TAG, "Event Message - Retrofit done, load the movie detail loader!");
-            if (getLoaderManager().getLoader(MOVIE_DETAIL_LOADER) == null) {
-                getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
-            } else {
-                getLoaderManager().restartLoader(MOVIE_DETAIL_LOADER, null, this);
-            }
-
-        } else {
-            Log.d(LOG_TAG, "Event Message - " + event.toString());
-        }
-    }
-
     @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
@@ -171,6 +157,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                         null
                 );
             }
+        } else {
+            Log.d(LOG_TAG, "Null onCreateLoader");
         }
         return null;
     }
@@ -180,13 +168,10 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         switch (loader.getId()) {
             case MOVIE_DETAIL_LOADER:
                 if (data != null && data.moveToFirst()) {
-                    Log.d(LOG_TAG, "Data Position: " + data.getPosition());
                     Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                     LoadMovieDetailView(data);
-                    if (data != null) {
-                        data.close();
-                    }
                 }
+                data.close();
                 break;
         }
     }
@@ -293,8 +278,9 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         switch (loader.getId()) {
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
+                loader.abandon();
+                loader.reset();
                 break;
         }
     }
 }
-

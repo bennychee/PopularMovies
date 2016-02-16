@@ -1,6 +1,10 @@
 package com.bennychee.popularmovies;
 
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,13 +12,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bennychee.popularmovies.event.SyncStartEvent;
+import com.bennychee.popularmovies.event.SyncStopEvent;
 import com.bennychee.popularmovies.sync.MovieSyncAdapter;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
 
     private boolean mTwoPane;
     private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
-    private String LOG_TAG = MainActivity.class.toString();
+    private String LOG_TAG = MainActivity.class.getSimpleName();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

@@ -14,6 +14,7 @@ public class MovieSyncService extends Service {
         Log.d("MovieSyncService", "onCreate - MovieSyncService");
         synchronized (sSyncAdapterLock) {
             if (sMovieSyncAdapter == null) {
+                Log.d("MovieSyncService", "sMovieSyncAdapter == null");
                 sMovieSyncAdapter = new MovieSyncAdapter(getApplicationContext(), true);
             }
         }

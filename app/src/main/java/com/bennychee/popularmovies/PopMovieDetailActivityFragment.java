@@ -166,12 +166,16 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     .build();
 
             service = retrofit.create(MovieService.class);
-            Log.d(LOG_TAG, "Retrofit Service: Started");
+            Log.d(LOG_TAG, "Retrofit Service: Created");
 
-//            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
-            MovieRuntime(getContext(), movieId, apiKey, service);
-//                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime not  in DB");
-//            }
+/*
+            if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
+                MovieRuntime(getContext(), movieId, apiKey, service);
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime NOT in DB");
+            } else {
+                Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime FOUND in DB");
+            }
+*/
 
 //            if (Utility.checkTrailerFromUri(getContext(), mUri) <= 0) {
 //                MovieTrailers(getContext(), movieId, apiKey, service);
@@ -197,10 +201,13 @@ public class PopMovieDetailActivityFragment extends Fragment {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
+                    Log.d(LOG_TAG, "Tab - movieDetailsFragment");
                     return movieDetailsFragment;
                 case 1:
+                    Log.d(LOG_TAG, "Tab - movieTrailerFragment");
                     return movieTrailerFragment;
                 case 2:
+                    Log.d(LOG_TAG, "Tab - movieReviewFragment");
                     return movieReviewFragment;
                 default:
                     return null;
@@ -231,8 +238,10 @@ public class PopMovieDetailActivityFragment extends Fragment {
                     int runtime = response.body().getRuntime();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
-                    //EventBus.getDefault().post(new RuntimeEvent(true));
-                    //Log.d(LOG_TAG, "Runtime EventBus posted");
+/*
+                    EventBus.getDefault().post(new RuntimeEvent(true));
+                    Log.d(LOG_TAG, "Runtime EventBus posted");
+*/
                 }
             }
 

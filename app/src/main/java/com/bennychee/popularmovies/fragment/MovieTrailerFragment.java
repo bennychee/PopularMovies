@@ -55,7 +55,6 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        EventBus.getDefault().register(this);
         super.onCreate(savedInstanceState);
 //        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
@@ -86,41 +85,19 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         trailerAdapter = new TrailerAdapter(getActivity(), trailersCursor, 0);
         trailerListView.setAdapter(trailerAdapter);
 
-        getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
-
         return rootView;
     }
 
-
-    public void onEvent(TrailerEvent event) {
-        if (event.isRetrofitCompleted) {
-            Log.d(LOG_TAG, "onEvent - Retrofit done, load the trailer loader!");
-            if (getLoaderManager().getLoader(TRAILER_DETAIL_LOADER) == null) {
-                getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
-            } else {
-                getLoaderManager().restartLoader(TRAILER_DETAIL_LOADER, null, this);
-            }
-        } else {
-            Log.d(LOG_TAG, "Event Message - " + event.toString());
-        }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().restartLoader(TRAILER_DETAIL_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-    }
-
-    @Override
-    public void onPause() {
-        EventBus.getDefault().unregister(this);
-        super.onPause();
+        getLoaderManager().restartLoader(TRAILER_DETAIL_LOADER, null, this);
     }
 
     @Override

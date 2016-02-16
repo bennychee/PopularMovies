@@ -40,6 +40,7 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        Log.d(LOG_TAG, LOG_TAG);
         return LayoutInflater.from(context).inflate(R.layout.item_trailer, parent, false);
     }
 

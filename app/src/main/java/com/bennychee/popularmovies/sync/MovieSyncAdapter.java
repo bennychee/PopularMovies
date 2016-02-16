@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -14,6 +15,7 @@ import android.content.SyncResult;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -30,9 +32,8 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.event.ReviewEvent;
-import com.bennychee.popularmovies.event.RuntimeEvent;
-import com.bennychee.popularmovies.event.TrailerEvent;
+import com.bennychee.popularmovies.event.SyncStartEvent;
+import com.bennychee.popularmovies.event.SyncStopEvent;
 
 import java.util.List;
 
@@ -57,7 +58,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     int trailerCount = 0;
     int runtimeCount = 0;
     static final int RETRY_COUNT = 5;
-    static final int SLEEP_TIME = 700;
+    static final int SLEEP_TIME = 10000;
+    static final int RETRY_TIME = 30000;
+
+    ProgressDialog progressDialog;
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -65,9 +69,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "onPerformSync Called.");
+        Log.d(LOG_TAG, "onPerformSync Called " + syncResult.stats.numEntries);
 
-        if (Utility.isOneDayLater(lastSyncTime)) {
+        if (Utility.isOneDayLater(lastSyncTime) && initialSync()) {
+
             String sortOrder = Utility.getPreferredSortOrder(getContext());
             Log.d(LOG_TAG, "Sort Order: " + sortOrder);
 
@@ -94,23 +99,46 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         List<PopMovieResult> movieResultList = response.body().getResults();
                         Utility.storeMovieList(getContext(), movieResultList);
 
-
-/*
+                        int size = movieResultList.size();
+                        int count = 0;
                         for (final PopMovieResult movie : movieResultList) {
+                            if (count == size) {}
+                            count++;
+                            Handler reviewHandler = new Handler();
+                            Runnable rvr = new Runnable() {
+                                @Override
+                                public void run() {
+                                    MovieReview(getContext(), movie.getId(), apiKey, service);
+                                }
+                            };
+                            reviewHandler.postDelayed(rvr, SLEEP_TIME);
+
+
                             MovieReview(getContext(), movie.getId(), apiKey, service);
 
-                            try {
-                                Thread.sleep(SLEEP_TIME);
-                                Log.d(LOG_TAG, "Movie ID: " + movie.getId() + " Sleep after MovieReview");
-                            } catch (InterruptedException e) {
-                            }
+                            Handler trailerHandler = new Handler();
+                            Runnable tr = new Runnable() {
+                                @Override
+                                public void run() {
+                                    MovieTrailers(getContext(), movie.getId(), apiKey, service);
+                                }
+                            };
+                            trailerHandler.postDelayed(tr, SLEEP_TIME);
 
-                            MovieTrailers(getContext(), movie.getId(), apiKey, service);
-                            MovieRuntime(getContext(), movie.getId(), apiKey, service);
+                            Handler runtimeHandler = new Handler();
+                            Runnable rr = new Runnable() {
+                                @Override
+                                public void run() {
+                                    MovieRuntime(getContext(), movie.getId(), apiKey, service);
+                                }
+                            };
+                            runtimeHandler.postDelayed(rr, SLEEP_TIME);
                         }
+
+/*
+                        EventBus.getDefault().post(new SyncStopEvent(true));
+                        Log.d(LOG_TAG, "Sync Stop EventBus posted");
 */
-
-
                     }
                 }
 
@@ -135,32 +163,29 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
                     if (runtimeCount < RETRY_COUNT) {
                         //Retry 3 times
+                        Handler rHandler = new Handler();
+                        Runnable rvr = new Runnable() {
+                            @Override
+                            public void run() {
+                                MovieRuntime(context, movieId, apiKey, service);                            }
+                        };
+                        rHandler.postDelayed(rvr, RETRY_TIME);
+
                         Log.d(LOG_TAG, "Retry Retrofit service #" + runtimeCount);
-/*
-                        try {
-                            Thread.sleep(SLEEP_TIME);
-                            Log.d(LOG_TAG, "Movie ID: " + movieId + " Sleep in MovieRuntime");
-                        } catch (InterruptedException e) {
-                        }
-*/
-                        MovieRuntime(context, movieId, apiKey, service);
+                        //MovieRuntime(context, movieId, apiKey, service);
                         runtimeCount++;
                     }
 
                 } else {
-//                    runtimeCount = 0;
                     int runtime = response.body().getRuntime();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
-//                    EventBus.getDefault().post(new RuntimeEvent(true));
-//                    Log.d(LOG_TAG, "EventBus posted");
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Runtime Error: " + t.getMessage());
-//                EventBus.getDefault().post(new RuntimeEvent(false));
             }
         });
     }
@@ -176,14 +201,21 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
                     if (trailerCount < RETRY_COUNT) {
-                        //Retry 3 times
+                        //Retry RETRY_COUNT times
+
+                        Handler rHandler = new Handler();
+                        Runnable rvr = new Runnable() {
+                            @Override
+                            public void run() {
+                                MovieTrailers(context, movieId, apiKey, service);
+                            }
+                        };
+                        rHandler.postDelayed(rvr, RETRY_TIME);
+
+
+
                         Log.d(LOG_TAG, "Retry Retrofit service #" + trailerCount);
-  /*                      try {
-                            Thread.sleep(SLEEP_TIME);
-                            Log.d(LOG_TAG, "Movie ID: " + movieId + " Sleep in MovieTrailers");
-                        } catch (InterruptedException e) {
-                        }
-  */                      MovieTrailers(context, movieId, apiKey, service);
+//                        MovieTrailers(context, movieId, apiKey, service);
                         trailerCount++;
                     }
                 } else {
@@ -191,14 +223,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(context, movieId, trailersResultList);
-//                    EventBus.getDefault().post(new TrailerEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Trailer Error: " + t.getMessage());
-//                EventBus.getDefault().post(new TrailerEvent(false));
             }
         });
 
@@ -214,15 +244,18 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
                     if (reviewCount < RETRY_COUNT) {
                         //Retry RETRY_COUNT times
+
+                        Handler rHandler = new Handler();
+                        Runnable rvr = new Runnable() {
+                            @Override
+                            public void run() {
+                                MovieReview(context, movieId, apiKey, service);
+                            }
+                        };
+                        rHandler.postDelayed(rvr, RETRY_TIME);
+
                         Log.d(LOG_TAG, "Retry Retrofit service #" + reviewCount);
-/*
-                        try {
-                            Thread.sleep(SLEEP_TIME);
-                            Log.d(LOG_TAG, "Movie ID: " + movieId + " Sleep in MovieReview");
-                        } catch (InterruptedException e) {
-                        }
-*/
-                        MovieReview(context, movieId, apiKey, service);
+//                        MovieReview(context, movieId, apiKey, service);
                         reviewCount++;
                     }
                 } else {
@@ -230,16 +263,33 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                     List<Result> reviewResultList = response.body().getResults();
                     Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(context, movieId, reviewResultList);
-//                    EventBus.getDefault().post(new ReviewEvent(true));
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.e(LOG_TAG, "Movie Review Error: " + t.getMessage());
- //               EventBus.getDefault().post(new ReviewEvent(false));
             }
         });
+    }
+
+    private boolean initialSync () {
+        Context context = getContext();
+        //checking the last update and notify if it' the first of the day
+        SharedPreferences prefs = context.getSharedPreferences("isInitialSync", 0);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        boolean syncOrNot = prefs.getBoolean("firstSync", true);
+        Log.d(LOG_TAG, "First Sync = " + syncOrNot);
+
+        if (syncOrNot) {
+            editor.putBoolean("firstSync", false);
+        } else {
+            editor.putBoolean("firstSync", true);
+        }
+
+        editor.commit();
+        return syncOrNot;
     }
 
 

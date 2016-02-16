@@ -35,6 +35,13 @@
     <string name="pref_enable_notifications_false">Not Enabled</string>
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
+
+    <!-- Strings related to Initial Sync preference -->
+    <string name="pref_enable_initialsync_key" translatable="false">enable_initialsync</string>
+    <string name="pref_enable_initialsync_default">true</string>
+    <string name="pref_enable_initialsync_false">false</string>
+    <string name="pref_enable_initialsync_true">true</string>
+
     <string name="notification.content">New Movies Out Today!</string>
 
     <!-- TODO: Remove or change this placeholder text -->

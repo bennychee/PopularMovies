@@ -232,8 +232,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         switch (loader.getId()) {
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Review Adapter");
-                reviewAdapter.swapCursor(null);
-                break;
+                reviewAdapter.swapCursor(null);                break;
         }
     }
 
