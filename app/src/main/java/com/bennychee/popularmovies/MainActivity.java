@@ -3,7 +3,6 @@ package com.bennychee.popularmovies;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private Toolbar toolbar = null;
     private String[] category = null;
 
+    private Spinner navigationSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +33,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         setContentView(R.layout.activity_main);
 
         Log.d(LOG_TAG, LOG_TAG);
-
-/*
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-*/
 
         category = getResources().getStringArray(R.array.category);
 
@@ -50,14 +45,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 R.array.category,
                 R.layout.spinner_dropdown_item
         );
-        Spinner navigationSpinner = new Spinner(getSupportActionBar().getThemedContext());
+
+        navigationSpinner = new Spinner(getSupportActionBar().getThemedContext());
         navigationSpinner.setAdapter(spinnerAdapter);
         toolbar.addView(navigationSpinner, 0);
 
-        navigationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        if (savedInstanceState != null) {
+            navigationSpinner.setSelection(savedInstanceState.getInt("NavigationSpinner", 0));
+        }
+
+            navigationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
                 switch(position) {
                     case 0:
                         Log.d(LOG_TAG, "Popular Movies Selected from Spinner");
@@ -86,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.movie_detail_container, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
-//                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                         .commit();
             }
         } else {
@@ -115,6 +113,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("NavigationSpinner", navigationSpinner.getSelectedItemPosition());
     }
 
     @Override

@@ -21,7 +21,6 @@ import android.widget.GridView;
 
 import com.bennychee.popularmovies.adapters.PopMovieAdapter;
 import com.bennychee.popularmovies.data.MovieContract;
-import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.

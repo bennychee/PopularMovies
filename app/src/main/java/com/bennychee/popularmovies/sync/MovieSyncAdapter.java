@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -32,12 +31,9 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.event.SyncStartEvent;
-import com.bennychee.popularmovies.event.SyncStopEvent;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.GsonConverterFactory;

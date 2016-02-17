@@ -21,25 +21,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.ReviewAdapter;
-import com.bennychee.popularmovies.api.MovieService;
-import com.bennychee.popularmovies.api.models.review.MovieReviews;
-import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
 import com.bennychee.popularmovies.event.ReviewEvent;
-
-import java.util.List;
-
-import de.greenrobot.event.EventBus;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.GsonConverterFactory;
-import retrofit2.Response;
-import retrofit2.Retrofit;
 
 
 /**

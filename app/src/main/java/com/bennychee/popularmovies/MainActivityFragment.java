@@ -35,6 +35,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private int count = 1;
     private int mPosition = GridView.INVALID_POSITION;
+
+
+    private int scrollPosition = GridView.INVALID_POSITION;
+
     private static final String SELECTED_KEY = "selected_position";
 
     private ProgressDialog progressDialog;
@@ -63,8 +67,15 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
-        updateMovies();
+//        updateMovies();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "Inside onResume");
+    }
+
 
     private void updateMovies() {
         MovieSyncAdapter.syncImmediately(getActivity());
@@ -74,6 +85,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("ScrollPosition")) {
+            // The gridview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            scrollPosition = savedInstanceState.getInt("ScrollPosition");
+            Log.d(LOG_TAG, "SaveInstanceState on Scroll Position = " + scrollPosition);
+        }
+
     }
 
     @Override
@@ -136,6 +155,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
 
+
         return rootView;
     }
 
@@ -147,6 +167,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (mPosition != GridView.INVALID_POSITION) {
             outState.putInt(SELECTED_KEY, mPosition);
         }
+
+        scrollPosition = popMoviesGridView.getFirstVisiblePosition();
+        Log.d(LOG_TAG, "Scroll Position = " + scrollPosition);
+        outState.putInt("ScrollPosition", scrollPosition);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -187,6 +212,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 // If we don't need to restart the loader, and there's a desired position to restore
                 // to, do so now.
                 popMoviesGridView.smoothScrollToPosition(mPosition);
+            }
+
+            Log.d(LOG_TAG, "Scroll Position in onLoadFinished" + scrollPosition);
+
+            if (scrollPosition != GridView.INVALID_POSITION) {
+                Log.d(LOG_TAG, "Scrolling to Position = " + scrollPosition);
+                popMoviesGridView.smoothScrollToPosition(scrollPosition);
             }
 
             if (firstEntry && data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {

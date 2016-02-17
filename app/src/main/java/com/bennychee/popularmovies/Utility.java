@@ -11,12 +11,9 @@ import android.util.Log;
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieResult;
 import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.data.MovieContract;
-import com.bennychee.popularmovies.event.RuntimeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * A list of utility methods used through the application

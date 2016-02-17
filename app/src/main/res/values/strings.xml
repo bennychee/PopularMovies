@@ -53,7 +53,7 @@
 
     <string-array name="category">
         <item>Popular Movies</item>
-        <item>Favorite Movies</item>
+        <item>Favorites</item>
     </string-array>
 
 </resources>

@@ -19,9 +19,6 @@ import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
-import com.bennychee.popularmovies.event.TrailerEvent;
-
-import de.greenrobot.event.EventBus;
 
 
 /**

@@ -14,13 +14,9 @@
         android:background="?attr/colorPrimary">
     </android.support.v7.widget.Toolbar>
 
-
-    <fragment
-    android:id="@+id/fragment_movies"
-    android:name="com.bennychee.popularmovies.MainActivityFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.bennychee.popularmovies.MainActivityFragment"
-    tools:layout="@android:layout/list_content" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_movies" />
 
 </LinearLayout>

@@ -25,7 +25,6 @@ import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
-import com.bennychee.popularmovies.event.RuntimeEvent;
 import com.squareup.picasso.Picasso;
 
 import de.greenrobot.event.EventBus;

@@ -19,16 +19,12 @@ import com.bennychee.popularmovies.api.models.review.MovieReviews;
 import com.bennychee.popularmovies.api.models.review.Result;
 import com.bennychee.popularmovies.api.models.runtime.MovieRuntime;
 import com.bennychee.popularmovies.api.models.trailers.MovieTrailers;
-import com.bennychee.popularmovies.event.ReviewEvent;
-import com.bennychee.popularmovies.event.RuntimeEvent;
-import com.bennychee.popularmovies.event.TrailerEvent;
 import com.bennychee.popularmovies.fragment.MovieDetailsFragment;
 import com.bennychee.popularmovies.fragment.MovieReviewFragment;
 import com.bennychee.popularmovies.fragment.MovieTrailerFragment;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.GsonConverterFactory;
