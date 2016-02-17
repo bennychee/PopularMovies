@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 
 import com.bennychee.popularmovies.adapters.PopMovieAdapter;
@@ -29,6 +30,10 @@ public class FavActivityFragment extends Fragment implements LoaderManager.Loade
 
     private PopMovieAdapter popMovieAdapter;
     private GridView popMoviesGridView;
+
+
+    private FrameLayout frameLayout;
+
     public static final int FAV_MOVIE_LOADER = 4;
     private Uri firstMovieUri;
     private boolean firstEntry = true;

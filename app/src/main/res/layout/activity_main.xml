@@ -23,5 +23,4 @@
     tools:context="com.bennychee.popularmovies.MainActivityFragment"
     tools:layout="@android:layout/list_content" />
 
-
 </LinearLayout>
