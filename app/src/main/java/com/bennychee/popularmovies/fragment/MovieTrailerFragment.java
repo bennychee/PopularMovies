@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.bennychee.popularmovies.R;
+import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.TrailerAdapter;
 import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 import com.bennychee.popularmovies.event.TrailerEvent;
@@ -67,6 +68,7 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(MovieTrailerFragment.DETAIL_URI);
+            movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
         }
 
         // Inflate the layout for this fragment

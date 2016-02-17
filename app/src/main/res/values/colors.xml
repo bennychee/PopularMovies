@@ -9,6 +9,7 @@
     <color name="gray">#939393</color>
     <color name="gray_dark">#5F5F5F</color>
     <color name="gray_light">#DBDBDB</color>
+    <color name="splashgray">#444440</color>
 
     <color name="primary">#785447</color>
     <color name="primaryDark">#5B3F36</color>

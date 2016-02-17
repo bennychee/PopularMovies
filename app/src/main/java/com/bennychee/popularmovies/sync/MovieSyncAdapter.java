@@ -58,7 +58,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     int trailerCount = 0;
     int runtimeCount = 0;
     static final int RETRY_COUNT = 5;
-    static final int SLEEP_TIME = 10000;
+    static final int SLEEP_TIME = 1000;
     static final int RETRY_TIME = 30000;
 
     ProgressDialog progressDialog;
@@ -101,30 +101,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
                         int size = movieResultList.size();
                         int count = 0;
+
                         for (final PopMovieResult movie : movieResultList) {
-                            if (count == size) {}
-                            count++;
-                            Handler reviewHandler = new Handler();
-                            Runnable rvr = new Runnable() {
-                                @Override
-                                public void run() {
-                                    MovieReview(getContext(), movie.getId(), apiKey, service);
-                                }
-                            };
-                            reviewHandler.postDelayed(rvr, SLEEP_TIME);
-
-
-                            MovieReview(getContext(), movie.getId(), apiKey, service);
-
-                            Handler trailerHandler = new Handler();
-                            Runnable tr = new Runnable() {
-                                @Override
-                                public void run() {
-                                    MovieTrailers(getContext(), movie.getId(), apiKey, service);
-                                }
-                            };
-                            trailerHandler.postDelayed(tr, SLEEP_TIME);
-
                             Handler runtimeHandler = new Handler();
                             Runnable rr = new Runnable() {
                                 @Override
@@ -135,10 +113,30 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                             runtimeHandler.postDelayed(rr, SLEEP_TIME);
                         }
 
-/*
-                        EventBus.getDefault().post(new SyncStopEvent(true));
-                        Log.d(LOG_TAG, "Sync Stop EventBus posted");
-*/
+                        for (final PopMovieResult movie : movieResultList) {
+                            if (count == size) {
+                            }
+                            count++;
+                            Handler reviewHandler = new Handler();
+                            Runnable rvr = new Runnable() {
+                                @Override
+                                public void run() {
+                                    MovieReview(getContext(), movie.getId(), apiKey, service);
+                                }
+                            };
+                            reviewHandler.postDelayed(rvr, SLEEP_TIME);
+                        }
+                        for (final PopMovieResult movie : movieResultList) {
+
+                            Handler trailerHandler = new Handler();
+                            Runnable tr = new Runnable() {
+                                @Override
+                                public void run() {
+                                    MovieTrailers(getContext(), movie.getId(), apiKey, service);
+                                }
+                            };
+                            trailerHandler.postDelayed(tr, SLEEP_TIME);
+                        }
                     }
                 }
 
@@ -157,7 +155,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
             @Override
             public void onResponse(Response<MovieRuntime> response) {
-                Log.d(LOG_TAG, "Movie Runtime Response Status: " + response.code());
+                Log.d(LOG_TAG, "Movie " + movieId + " Runtime Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
 
@@ -171,7 +169,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         };
                         rHandler.postDelayed(rvr, RETRY_TIME);
 
-                        Log.d(LOG_TAG, "Retry Retrofit service #" + runtimeCount);
+                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + runtimeCount);
                         //MovieRuntime(context, movieId, apiKey, service);
                         runtimeCount++;
                     }
@@ -197,7 +195,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
             @Override
             public void onResponse(Response<MovieTrailers> response) {
-                Log.d(LOG_TAG, "Movie Trailers Response Status: " + response.code());
+                Log.d(LOG_TAG, "Movie " + movieId + " Trailers Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
                     if (trailerCount < RETRY_COUNT) {
@@ -214,7 +212,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
 
 
-                        Log.d(LOG_TAG, "Retry Retrofit service #" + trailerCount);
+                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + trailerCount);
 //                        MovieTrailers(context, movieId, apiKey, service);
                         trailerCount++;
                     }
@@ -239,7 +237,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         movieReviewsCall.enqueue(new Callback<MovieReviews>() {
             @Override
             public void onResponse(Response<MovieReviews> response) {
-                Log.d(LOG_TAG, "Movie Reviews Response Status: " + response.code());
+                Log.d(LOG_TAG, "Movie " + movieId + " Reviews Response Status: " + response.code());
                 if (!response.isSuccess()) {
                     Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
                     if (reviewCount < RETRY_COUNT) {
@@ -254,7 +252,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         };
                         rHandler.postDelayed(rvr, RETRY_TIME);
 
-                        Log.d(LOG_TAG, "Retry Retrofit service #" + reviewCount);
+                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + reviewCount);
 //                        MovieReview(context, movieId, apiKey, service);
                         reviewCount++;
                     }

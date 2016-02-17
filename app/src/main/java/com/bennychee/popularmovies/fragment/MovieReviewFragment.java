@@ -123,6 +123,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(MovieReviewFragment.DETAIL_URI);
+            movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
         }
 
         // Inflate the layout for this fragment
@@ -232,7 +233,8 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         switch (loader.getId()) {
             case REVIEW_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Review Adapter");
-                reviewAdapter.swapCursor(null);                break;
+                reviewAdapter.swapCursor(null);
+                break;
         }
     }
 
