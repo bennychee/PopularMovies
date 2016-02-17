@@ -32,7 +32,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/detail_backdrop_image"
-                android:src="@drawable/quila"
+                android:src="@drawable/placeholder"
                 android:scaleType="centerCrop"
                 />
 
@@ -89,7 +89,7 @@
                             android:layout_width="@dimen/movie_details_poster_width"
                             android:layout_height="wrap_content"
                             android:id="@+id/detail_poster_image"
-                            android:src="@drawable/quila"
+                            android:src="@drawable/placeholder"
                             android:paddingTop="20dp" />
 
                         <LinearLayout

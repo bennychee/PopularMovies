@@ -179,6 +179,13 @@ public class FavActivityFragment extends Fragment implements LoaderManager.Loade
                 popMoviesGridView.smoothScrollToPosition(mPosition);
             }
 
+            int numMovie = data.getCount();
+            Log.d(LOG_TAG, "Number of Movies in Fav = " + numMovie);
+
+            if (numMovie == 0) {
+                firstMovieUri = Uri.EMPTY;
+            }
+
             if (firstEntry && data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {
                 data.moveToFirst();
                 Log.d(LOG_TAG, "1st Entry detected. Dual pane mode detected.");

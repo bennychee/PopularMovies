@@ -5,5 +5,5 @@
     android:layout_height="match_parent"
     android:id="@+id/movie_detail_container"
     tools:context="com.bennychee.popularmovies.PopMovieDetailActivityFragment"
-    tools:layout="@layout/fragment_pop_movie_detail_activity">
+    tools:layout="@layout/fragment_movie_detail">
 </FrameLayout>

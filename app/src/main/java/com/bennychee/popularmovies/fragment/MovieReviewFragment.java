@@ -46,8 +46,6 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
     private boolean mIsTheTitleVisible          = false;
     private boolean mIsTheTitleContainerVisible = true;
 
-    private LinearLayout mTitleContainer;
-    private TextView mTitle;
     private TextView mDescription;
     private AppBarLayout mAppBarLayout;
     private CollapsingToolbarLayout mToolbar;
@@ -119,9 +117,7 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_movie_review, container, false);
 
         mToolbar        = (CollapsingToolbarLayout) rootView.findViewById(R.id.details_toolbar_name);
-        mTitleContainer = (LinearLayout) rootView.findViewById(R.id.main_linearlayout_title);
 //        mAppBarLayout   = (AppBarLayout) rootView.findViewById(R.id.main_appbar);
-        mTitle          = (TextView) rootView.findViewById(R.id.main_textview_title);
 
         mDescription = (TextView) rootView.findViewById(R.id.movie_desc);
 
@@ -136,6 +132,14 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         reviewListView = (ListView) rootView.findViewById(R.id.listview_review);
 
         reviewText = (TextView) rootView.findViewById(R.id.review_text);
+
+
+        if(mUri == Uri.EMPTY) {
+            reviewListView.setVisibility(View.INVISIBLE);
+        } else {
+            reviewListView.setVisibility(View.VISIBLE);
+        }
+
 
 /*
         progressBar = new ProgressDialog(rootView.getContext());

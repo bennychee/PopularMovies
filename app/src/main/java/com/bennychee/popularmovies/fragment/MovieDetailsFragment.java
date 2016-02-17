@@ -36,8 +36,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
     private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
-    private LinearLayout mTitleContainer;
-    private TextView mTitle;
     private TextView mDescription;
     private AppBarLayout mAppBarLayout;
     private CollapsingToolbarLayout mToolbar;
@@ -113,9 +111,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
         mToolbar        = (CollapsingToolbarLayout) rootView.findViewById(R.id.details_toolbar_name);
-        mTitleContainer = (LinearLayout) rootView.findViewById(R.id.main_linearlayout_title);
-        mTitle          = (TextView) rootView.findViewById(R.id.main_textview_title);
-
         mDescription = (TextView) rootView.findViewById(R.id.movie_desc);
 
         posterImageView = (ImageView) rootView.findViewById(R.id.detail_poster_image);

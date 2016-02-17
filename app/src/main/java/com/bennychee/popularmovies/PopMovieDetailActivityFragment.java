@@ -101,6 +101,14 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
         viewPager = (ViewPager) rootView.findViewById(R.id.viewpager);
 
+        if(mUri == Uri.EMPTY) {
+            tabLayout.setVisibility(View.INVISIBLE);
+            viewPager.setVisibility(View.INVISIBLE);
+        } else {
+            tabLayout.setVisibility(View.VISIBLE);
+            viewPager.setVisibility(View.VISIBLE);
+        }
+
         viewPager.setOffscreenPageLimit(tabLayout.getTabCount());
 
         MovieViewPagerAdapter movieViewPagerAdapter = new MovieViewPagerAdapter(this.getFragmentManager(), tabLayout.getTabCount());
@@ -124,7 +132,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
             }
         });
 
-
         return rootView;
     }
 
@@ -145,17 +152,22 @@ public class PopMovieDetailActivityFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         if (mUri != null) {
-            Log.d(LOG_TAG, "URI: " + mUri.toString());
-
             int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
-
-            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
-            String baseUrl = BuildConfig.API_BASE_URL;
-
-            Log.d(LOG_TAG, "Base URL = " + baseUrl);
-            Log.d(LOG_TAG, "API Key = " + apiKey);
+            Log.d(LOG_TAG, "URI: " + mUri.toString());
             Log.d(LOG_TAG, "Movie ID = " + movieId);
 
+/*
+            String apiKey = BuildConfig.MOVIE_DB_API_TOKEN;
+            String baseUrl = BuildConfig.API_BASE_URL;
+*/
+
+/*
+            Log.d(LOG_TAG, "Base URL = " + baseUrl);
+            Log.d(LOG_TAG, "API Key = " + apiKey);
+
+*/
+
+/*
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -163,6 +175,7 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
             service = retrofit.create(MovieService.class);
             Log.d(LOG_TAG, "Retrofit Service: Created");
+*/
 
 /*
             if (Utility.checkRuntimeFromUri(getContext(), mUri) <= 0) {
