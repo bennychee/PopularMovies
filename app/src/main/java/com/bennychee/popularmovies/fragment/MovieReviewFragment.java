@@ -123,7 +123,9 @@ public class MovieReviewFragment extends Fragment implements  LoaderManager.Load
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(MovieReviewFragment.DETAIL_URI);
-            movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
+            if (mUri != null) {
+                movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
+            }
         }
 
         // Inflate the layout for this fragment

@@ -4,14 +4,28 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     tools:context="com.bennychee.popularmovies.MainActivity">
+
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/spin_toolbar"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:background="?attr/colorPrimary">
+    </android.support.v7.widget.Toolbar>
+
 
     <!--
     This layout is a two-pane layout for the Items master/detail flow.
     -->
 
-    <fragment
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <fragment
         android:id="@+id/fragment_movies"
         android:name="com.bennychee.popularmovies.MainActivityFragment"
         android:layout_width="0dp"
@@ -19,10 +33,12 @@
         android:layout_height="match_parent"
         tools:layout="@android:layout/list_content" />
 
-    <FrameLayout
-        android:layout_width="0dp"
-        android:layout_weight="3"
-        android:layout_height="match_parent"
-        android:id="@+id/movie_detail_container" />
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="match_parent"
+            android:id="@+id/movie_detail_container" />
+    </LinearLayout>
+
 
 </LinearLayout>

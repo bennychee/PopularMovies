@@ -59,9 +59,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     int runtimeCount = 0;
     static final int RETRY_COUNT = 5;
     static final int SLEEP_TIME = 1000;
-    static final int RETRY_TIME = 30000;
-
-    ProgressDialog progressDialog;
+    static final int SLEEP_TIME_EXTENDED = 3000;
+    static final int RETRY_TIME = 10000;
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -124,7 +123,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                     MovieReview(getContext(), movie.getId(), apiKey, service);
                                 }
                             };
-                            reviewHandler.postDelayed(rvr, SLEEP_TIME);
+                            reviewHandler.postDelayed(rvr, SLEEP_TIME + SLEEP_TIME + SLEEP_TIME_EXTENDED);
                         }
                         for (final PopMovieResult movie : movieResultList) {
 
@@ -135,7 +134,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                                     MovieTrailers(getContext(), movie.getId(), apiKey, service);
                                 }
                             };
-                            trailerHandler.postDelayed(tr, SLEEP_TIME);
+                            trailerHandler.postDelayed(tr, SLEEP_TIME + SLEEP_TIME + SLEEP_TIME_EXTENDED + SLEEP_TIME_EXTENDED + SLEEP_TIME_EXTENDED);
                         }
                     }
                 }

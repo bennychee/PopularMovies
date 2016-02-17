@@ -25,11 +25,11 @@ import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FavActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private PopMovieAdapter popMovieAdapter;
     private GridView popMoviesGridView;
-    public static final int MOVIE_LOADER = 3;
+    public static final int FAV_MOVIE_LOADER = 4;
     private Uri firstMovieUri;
     private boolean firstEntry = true;
 
@@ -39,14 +39,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     private ProgressDialog progressDialog;
 
-    final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+    final String LOG_TAG = FavActivityFragment.class.getSimpleName();
 
     public interface Callback {
-        public void onItemSelected(Uri mUri);
+        public void onFavItemSelected(Uri mUri);
     }
 
-
-    public MainActivityFragment() {
+    public FavActivityFragment() {
     }
 
     @Override
@@ -63,16 +62,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
-        updateMovies();
-    }
-
-    private void updateMovies() {
-        MovieSyncAdapter.syncImmediately(getActivity());
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        getLoaderManager().initLoader(FAV_MOVIE_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -85,7 +79,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading Movies....");
+        progressDialog.setMessage("Loading Favorites....");
         progressDialog.setIndeterminate(true);
         progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -93,17 +87,20 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 if (firstEntry && getResources().getBoolean(R.bool.dual_pane)) {
                     Log.d(LOG_TAG, "Progress Dialog Dismissed. Doing work!");
                     ((Callback) getActivity())
-                            .onItemSelected(firstMovieUri);
+                            .onFavItemSelected(firstMovieUri);
                 }
             }
         });
 
-        Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
+        Log.d(LOG_TAG, LOG_TAG + " - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
+
+
         if(getResources().getBoolean(R.bool.dual_pane)) {
             popMoviesGridView.setNumColumns(3);
         }
         popMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
+
         popMoviesGridView.setAdapter(popMovieAdapter);
 
         progressDialog.show();
@@ -119,7 +116,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     firstEntry = false;
 
                     ((Callback) getActivity())
-                            .onItemSelected(movieUri);
+                            .onFavItemSelected(movieUri);
                 }
                 mPosition = position;
             }
@@ -153,24 +150,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == MOVIE_LOADER) {
-            String sortOrderSetting = Utility.getPreferredSortOrder(getActivity());
-            String sortOrder;
-            final int NUMBER_OF_MOVIES = 20;
-
-            if (sortOrderSetting.equals(getString(R.string.prefs_sort_default_value))) {
-                sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-            } else {
-                //sort by rating
-                sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-            }
-
+        if (id == FAV_MOVIE_LOADER) {
             return new CursorLoader(getActivity(),
                     MovieContract.MovieEntry.CONTENT_URI,
                     new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_IMAGE_URL},
-                    null,
-                    null,
-                    sortOrder + " LIMIT " + NUMBER_OF_MOVIES);
+                    MovieContract.MovieEntry.COLUMN_FAVORITE + "= ?",
+                    new String[]{Integer.toString(1)},
+                    null);
         } else {
             return null;
         }
@@ -179,7 +165,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == MOVIE_LOADER) {
+        if (loader.getId() == FAV_MOVIE_LOADER) {
             Log.d(LOG_TAG, LOG_TAG + " onLoadFinished");
             popMovieAdapter.swapCursor(data);
 

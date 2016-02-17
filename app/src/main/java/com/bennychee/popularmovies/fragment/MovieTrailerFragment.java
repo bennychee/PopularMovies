@@ -1,6 +1,7 @@
 package com.bennychee.popularmovies.fragment;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -68,7 +69,9 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(MovieTrailerFragment.DETAIL_URI);
-            movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
+            if (mUri !=null ) {
+                movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
+            }
         }
 
         // Inflate the layout for this fragment
@@ -87,19 +90,26 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         trailerAdapter = new TrailerAdapter(getActivity(), trailersCursor, 0);
         trailerListView.setAdapter(trailerAdapter);
 
+        Intent intent = getActivity().getIntent();
+               if (intent == null) {
+                        return null;
+               }
+
         return rootView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().restartLoader(TRAILER_DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(TRAILER_DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getLoaderManager().restartLoader(TRAILER_DETAIL_LOADER, null, this);
+        if (getLoaderManager().getLoader(TRAILER_DETAIL_LOADER) !=null) {
+            getLoaderManager().restartLoader(TRAILER_DETAIL_LOADER, null, this);
+        }
     }
 
     @Override

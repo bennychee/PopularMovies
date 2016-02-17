@@ -95,7 +95,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.d(LOG_TAG, LOG_TAG + "onActivityCreated");
-        getLoaderManager().restartLoader(MOVIE_DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -171,7 +171,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                     Log.d(LOG_TAG, "Inside onLoadFinished - Movie Details Adapter");
                     LoadMovieDetailView(data);
                 }
-                data.close();
                 break;
         }
     }
@@ -278,7 +277,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         switch (loader.getId()) {
             case MOVIE_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Movie Details Adapter");
-                loader.abandon();
+//                loader.abandon();
                 loader.reset();
                 break;
         }
