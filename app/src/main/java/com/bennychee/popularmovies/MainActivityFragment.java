@@ -1,7 +1,15 @@
 package com.bennychee.popularmovies;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,15 +41,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private Uri firstMovieUri;
     private boolean firstEntry = true;
 
+    private SyncReceiver myReceiver;
+
     private int count = 1;
     private int mPosition = GridView.INVALID_POSITION;
 
+    private Uri movieUri;
+
+    private boolean isOnResume = false;
 
     private int scrollPosition = GridView.INVALID_POSITION;
 
     private static final String SELECTED_KEY = "selected_position";
 
     private ProgressDialog progressDialog;
+
+    private ProgressDialog firstDialog;
 
     final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
@@ -58,6 +73,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
+
+        myReceiver = new SyncReceiver();
+        IntentFilter intentFilter = new IntentFilter("com.bennychee.syncstatus");
+        getActivity().registerReceiver(myReceiver, intentFilter);
+
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -67,13 +87,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
-//        updateMovies();
+        updateMovies();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(LOG_TAG, "Inside onResume");
+        isOnResume = true;
+        if (getResources().getBoolean(R.bool.dual_pane)) {
+            firstDialog.show();
+         //   firstDialog.hide();
+        }
     }
 
 
@@ -92,6 +117,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             scrollPosition = savedInstanceState.getInt("ScrollPosition");
             Log.d(LOG_TAG, "SaveInstanceState on Scroll Position = " + scrollPosition);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(myReceiver);
 
     }
 
@@ -103,19 +134,33 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+
         progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Loading Movies....");
-        progressDialog.setIndeterminate(true);
         progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                if (firstEntry && getResources().getBoolean(R.bool.dual_pane)) {
+                if ((isOnResume || firstEntry) && getResources().getBoolean(R.bool.dual_pane)) {
                     Log.d(LOG_TAG, "Progress Dialog Dismissed. Doing work!");
+                    movieUri  = firstMovieUri;
                     ((Callback) getActivity())
-                            .onItemSelected(firstMovieUri);
+                            .onItemSelected(movieUri);
                 }
             }
         });
+
+        firstDialog = new ProgressDialog(getActivity());
+        firstDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                if (isOnResume) {
+                    Log.d(LOG_TAG, "onResume Loading URI = " + firstMovieUri);
+                    ((Callback) getActivity())
+                            .onItemSelected(firstMovieUri);
+                    isOnResume = false;
+                }
+            }
+        });
+
 
         Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
@@ -125,8 +170,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         popMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
         popMoviesGridView.setAdapter(popMovieAdapter);
 
-        progressDialog.show();
-
         Log.d(LOG_TAG, "popMoviesGridView: " + popMoviesGridView.getAdapter().toString());
         popMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -134,7 +177,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 Cursor currentPos = (Cursor) parent.getItemAtPosition(position);
                 if (currentPos != null) {
                     final int MOVIE_ID_COL = currentPos.getColumnIndex(MovieContract.MovieEntry._ID);
-                    Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentPos.getInt(MOVIE_ID_COL));
+                    movieUri = MovieContract.MovieEntry.buildMovieWithId(currentPos.getInt(MOVIE_ID_COL));
                     firstEntry = false;
 
                     ((Callback) getActivity())
@@ -155,7 +198,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             mPosition = savedInstanceState.getInt(SELECTED_KEY);
         }
 
-
         return rootView;
     }
 
@@ -173,6 +215,30 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         outState.putInt("ScrollPosition", scrollPosition);
 
         super.onSaveInstanceState(outState);
+    }
+
+    public class SyncReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Receiving Broadcast");
+            Bundle extras = intent.getExtras();
+            String syncStatus;
+            if (extras != null) {
+                syncStatus = extras.getString("SYNCING_STATUS");
+                Log.d(LOG_TAG, "SyncStatus = " + syncStatus);
+                //if (syncStatus == "RUNNING") {
+                if (syncStatus.equals("RUNNING")) {
+                    Log.d(LOG_TAG, "Intent Running");
+                    progressDialog.setTitle("Please wait....");
+                    progressDialog.setMessage("Loading Movies....");
+                    progressDialog.setIndeterminate(true);
+                    progressDialog.show();
+                } else if (syncStatus.equals("STOPPING")) {
+                    Log.d(LOG_TAG, "Intent Stopping");
+                    progressDialog.dismiss();
+                }
+            }
+        }
     }
 
 
@@ -203,6 +269,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
     @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "Inside onPause");
+    }
+
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == MOVIE_LOADER) {
             Log.d(LOG_TAG, LOG_TAG + " onLoadFinished");
@@ -214,7 +286,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 popMoviesGridView.smoothScrollToPosition(mPosition);
             }
 
-            Log.d(LOG_TAG, "Scroll Position in onLoadFinished" + scrollPosition);
+            Log.d(LOG_TAG, "Scroll Position in onLoadFinished " + scrollPosition);
 
             if (scrollPosition != GridView.INVALID_POSITION) {
                 Log.d(LOG_TAG, "Scrolling to Position = " + scrollPosition);
@@ -225,9 +297,20 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 data.moveToFirst();
                 Log.d(LOG_TAG, "1st Entry detected. Dual pane mode detected.");
                 final int MOVIE_ID_COL = data.getColumnIndex(MovieContract.MovieEntry._ID);
+                Log.d(LOG_TAG, "Movie ID in onLoadfinished = " + MOVIE_ID_COL);
                 firstMovieUri = MovieContract.MovieEntry.buildMovieWithId(data.getInt(MOVIE_ID_COL));
+                Log.d(LOG_TAG, "First Movie URI = " + firstMovieUri.toString());
+                if (isOnResume) {
+                    firstDialog.dismiss();
+                }
+/*
+                if (isOnResume) {
+                    ((Callback) getActivity())
+                            .onItemSelected(firstMovieUri);
+                    isOnResume = false;
+                }
+*/
             }
-            progressDialog.dismiss();
         }
     }
 

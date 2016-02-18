@@ -31,6 +31,8 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
     private String youtubeKey;
     YouTubeThumbnailView youTubeThumbnailView;
     YouTubeThumbnailLoader youTubeThumbnailLoader;
+    private boolean isNotInit = true;
+
     private final Map<YouTubeThumbnailView, YouTubeThumbnailLoader> thumbnailLoaderMap;
 
     public TrailerAdapter(Context context, Cursor c, int flags) {
@@ -68,6 +70,25 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
 
         youTubeThumbnailView = new YouTubeThumbnailView(context);
         youTubeThumbnailView = (YouTubeThumbnailView) view.findViewById(R.id.youtube_thumbnail);
+        youTubeThumbnailLoader = thumbnailLoaderMap.get(youTubeThumbnailView);
+
+        if (isNotInit) {
+            //Case 1 - We need to initialize the loader
+            youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
+            Log.d(LOG_TAG, "Youtube Thumbnail Initialized - Cursor is First");
+            youTubeThumbnailView.setTag(youtubeKey);
+            isNotInit = false;
+        } else {
+            if (youTubeThumbnailLoader == null) {
+                // Case 3 - The loader is currently initializing
+                youTubeThumbnailView.setTag(youtubeKey);
+                Log.d(LOG_TAG, "Youtube Thumbnail Loader Initializing - Loader == NULL");
+            } else {
+                // Case 2 - The loader is already initialized
+                Log.d(LOG_TAG, "Youtube Thumbnail Initialized");
+//                youTubeThumbnailLoader.setVideo(youtubeKey);
+            }
+        }
 
         youTubeThumbnailView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,10 +100,8 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
             }
         });
 
-        youTubeThumbnailView.setTag(youtubeKey);
-        if (view == null) {
-            youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
-        }
+        Log.d(LOG_TAG, "Cursor Count = " + cursor.getCount() + " Position = " + cursor.getPosition() + "Youtube ID = " + youtubeKey);
+
     }
 
     public void release (){
@@ -96,8 +115,11 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
 
         youTubeThumbnailLoader = thumbnailLoader;
         thumbnailLoader.setOnThumbnailLoadedListener(new ThumbnailListener());
-        thumbnailLoaderMap.put(youTubeThumbnailView,thumbnailLoader);
+        thumbnailLoaderMap.put(youTubeThumbnailView, thumbnailLoader);
         youTubeThumbnailLoader.setVideo(youTubeThumbnailView.getTag().toString());
+
+        Log.d(LOG_TAG, "Thumbnail Initialized Success - " + youTubeThumbnailView.getTag().toString());
+
     }
 
     private final class ThumbnailListener implements

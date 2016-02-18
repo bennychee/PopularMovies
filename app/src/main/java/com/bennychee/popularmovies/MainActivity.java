@@ -1,8 +1,15 @@
 package com.bennychee.popularmovies;
 
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,9 +21,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import com.bennychee.popularmovies.adapters.PopMovieAdapter;
 import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
-public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, FavActivityFragment.Callback {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, FavActivityFragment.Callback{
 
     private boolean mTwoPane;
     private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
@@ -27,12 +35,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private String[] category = null;
 
     private Spinner navigationSpinner;
+//    private SyncReceiver myReceiver;
+    private ProgressDialog ringProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+/*
+        myReceiver = new SyncReceiver();
+        IntentFilter intentFilter = new IntentFilter("com.bennychee.syncstatus");
+        registerReceiver(myReceiver, intentFilter);
+*/
+
+        setContentView(R.layout.activity_main);
         Log.d(LOG_TAG, LOG_TAG);
 
         category = getResources().getStringArray(R.array.category);
@@ -47,6 +63,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 R.layout.spinner_dropdown_item
         );
 
+/*
+        ringProgressDialog = new ProgressDialog(this);
+*/
+
         navigationSpinner = new Spinner(getSupportActionBar().getThemedContext());
         navigationSpinner.setAdapter(spinnerAdapter);
         toolbar.addView(navigationSpinner, 0);
@@ -56,44 +76,82 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         }
 
             navigationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch(position) {
-                    case 0:
-                        Log.d(LOG_TAG, "Popular Movies Selected from Spinner");
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_movies, new MainActivityFragment(), MAINFRAGMENT_TAG)
-                                .commit();
-                        break;
-                    case 1:
-                        Log.d(LOG_TAG, "Favorites Selected from Spinner");
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_movies, new FavActivityFragment())
-                                .addToBackStack(MAINFRAGMENT_TAG)
-                                .commit();
-                        break;
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    switch (position) {
+                        case 0:
+                            Log.d(LOG_TAG, "Popular Movies Selected from Spinner");
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_movies, new MainActivityFragment(), MAINFRAGMENT_TAG)
+                                    .commit();
+                            break;
+                        case 1:
+                            Log.d(LOG_TAG, "Favorites Selected from Spinner");
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_movies, new FavActivityFragment())
+//                                    .addToBackStack(MAINFRAGMENT_TAG)
+                                    .commit();
+                            break;
+                    }
                 }
-            }
 
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+/*
+        ringProgressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onDismiss(DialogInterface dialog) {
 
             }
         });
-
+*/
 
         if (findViewById(R.id.movie_detail_container) != null) {
             mTwoPane = true;
-            if (savedInstanceState == null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.movie_detail_container, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
-                        .commit();
-            }
+                        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
+                    .commit();
+                      }
         } else {
             mTwoPane = false;
         }
 
-        MovieSyncAdapter.initializeSyncAdapter(getApplicationContext());
+    }
+
+/*
+    public class SyncReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Receiving Broadcast");
+            Bundle extras = intent.getExtras();
+            String syncStatus;
+            if (extras != null) {
+                syncStatus = extras.getString("SYNCING_STATUS");
+                Log.d(LOG_TAG, "SyncStatus = " + syncStatus);
+                //if (syncStatus == "RUNNING") {
+                if (syncStatus.equals("RUNNING")) {
+                    Log.d(LOG_TAG, "Intent Running");
+                    ringProgressDialog.setTitle("Please wait....");
+                    ringProgressDialog.setMessage("Loading Movies....");
+                    ringProgressDialog.setIndeterminate(true);
+                    ringProgressDialog.show();
+                } else if (syncStatus.equals("STOPPING")) {
+                    Log.d(LOG_TAG, "Intent Stopping");
+                    ringProgressDialog.dismiss();
+                }
+            }
+        }
+    }
+
+*/
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -170,4 +228,5 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             startActivity(intent);
         }
     }
+
 }

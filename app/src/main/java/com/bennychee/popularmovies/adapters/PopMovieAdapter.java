@@ -11,6 +11,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
 import com.bennychee.popularmovies.BuildConfig;
+import com.bennychee.popularmovies.MainActivity;
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
@@ -27,6 +28,7 @@ public class PopMovieAdapter extends CursorAdapter {
     public PopMovieAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
+
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -52,5 +54,6 @@ public class PopMovieAdapter extends CursorAdapter {
                 .error(R.drawable.error)
                 .tag(context)
                 .into(posterImageView);
+
     }
 }

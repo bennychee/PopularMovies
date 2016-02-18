@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Movie;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -23,6 +24,7 @@ import android.util.Log;
 import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.MainActivity;
 import com.bennychee.popularmovies.R;
+import com.bennychee.popularmovies.SplashActivity;
 import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.api.MovieService;
 import com.bennychee.popularmovies.api.models.popmovies.PopMovieModel;
@@ -66,7 +68,15 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync Called " + syncResult.stats.numEntries);
 
+
         if (Utility.isOneDayLater(lastSyncTime) && initialSync()) {
+
+            final Intent intent = new Intent();
+            intent.setAction("com.bennychee.syncstatus");
+            Log.d(LOG_TAG, "Sending running");
+            intent.putExtra("SYNCING_STATUS", "RUNNING");
+            getContext().sendBroadcast(intent);
+
 
             String sortOrder = Utility.getPreferredSortOrder(getContext());
             Log.d(LOG_TAG, "Sort Order: " + sortOrder);
@@ -95,9 +105,20 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         Utility.storeMovieList(getContext(), movieResultList);
 
                         int size = movieResultList.size();
-                        int count = 0;
+                        int count = 1;
 
                         for (final PopMovieResult movie : movieResultList) {
+
+                            Log.d(LOG_TAG, "Counting movie list = " + count + "/" + size);
+
+                            if (count == size) {
+                                Log.d(LOG_TAG, "Sending Stopping");
+                                intent.putExtra("SYNCING_STATUS", "STOPPING");
+                                getContext().sendBroadcast(intent);
+                            }
+
+                            count++;
+
                             Handler runtimeHandler = new Handler();
                             Runnable rr = new Runnable() {
                                 @Override
