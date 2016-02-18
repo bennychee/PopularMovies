@@ -2,6 +2,7 @@ package com.bennychee.popularmovies.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,15 +37,6 @@ public class ReviewAdapter extends CursorAdapter {
         final TextView reviewTextView = (TextView) view.findViewById(R.id.review_content);
         final TextView showAll = (TextView) view.findViewById(R.id.detail_read_all);
 
-        showAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAll.setVisibility(View.INVISIBLE);
-
-                reviewTextView.setMaxLines(Integer.MAX_VALUE);
-            }
-        });
-
         String author = cursor.getString(
                 cursor.getColumnIndex(
                         MovieContract
@@ -59,8 +51,25 @@ public class ReviewAdapter extends CursorAdapter {
                                 .COLUMN_CONTENT)
         );
 
-        authorTextView.setText(author);
+        authorTextView.setText("Reviewer : " + author);
+        authorTextView.setTypeface(null, Typeface.BOLD);
+
         reviewTextView.setText(review);
-        Log.d(LOG_TAG, "Author = " + author);
+        Log.d(LOG_TAG, "Line Count = " + reviewTextView.getLineCount() + "/" + reviewTextView.getMaxLines());
+        if (reviewTextView.getLineCount() > reviewTextView.getMaxLines()) {
+            showAll.setTypeface(null, Typeface.BOLD_ITALIC);
+            showAll.setVisibility(View.VISIBLE);
+        } else {
+            showAll.setVisibility(View.INVISIBLE);
+        }
+
+        showAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAll.setVisibility(View.INVISIBLE);
+                reviewTextView.setMaxLines(Integer.MAX_VALUE);
+            }
+        });
+
     }
 }
