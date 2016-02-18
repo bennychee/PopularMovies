@@ -87,7 +87,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onStart() {
         super.onStart();
-        updateMovies();
+//        updateMovies();
     }
 
     @Override
@@ -245,16 +245,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == MOVIE_LOADER) {
-            String sortOrderSetting = Utility.getPreferredSortOrder(getActivity());
-            String sortOrder;
             final int NUMBER_OF_MOVIES = 20;
-
-            if (sortOrderSetting.equals(getString(R.string.prefs_sort_default_value))) {
-                sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-            } else {
-                //sort by rating
-                sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-            }
+            String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
 
             return new CursorLoader(getActivity(),
                     MovieContract.MovieEntry.CONTENT_URI,

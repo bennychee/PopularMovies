@@ -28,10 +28,8 @@ public class SplashActivity extends AppCompatActivity{
 
         super.onCreate(savedInstanceState);
 
- //       MovieSyncAdapter.initializeSyncAdapter(getApplicationContext());
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
         finish();
-
     }
 }

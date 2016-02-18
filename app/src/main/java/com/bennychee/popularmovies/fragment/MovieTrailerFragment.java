@@ -13,11 +13,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
+import com.bennychee.popularmovies.YoutubeLightBox;
 import com.bennychee.popularmovies.adapters.TrailerAdapter;
+import com.bennychee.popularmovies.data.MovieContract;
 import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 
 
@@ -33,18 +36,15 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     private Uri mUri;
     private int movieId;
     private TrailerAdapter trailerAdapter;
-    private int count = 0;
 
     @Override
     public void onStop() {
         super.onStop();
-        trailerAdapter.release();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        trailerAdapter.release();
     }
 
     public MovieTrailerFragment() {
@@ -55,7 +55,6 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
 
@@ -91,6 +90,24 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
                if (intent == null) {
                         return null;
                }
+
+        trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor currentPos = (Cursor) parent.getItemAtPosition(position);
+                if (currentPos != null) {
+                    String youtubeKey = currentPos.getString(
+                            currentPos.getColumnIndex(
+                            MovieContract
+                                    .TrailerEntry
+                                    .COLUMN_YOUTUBE_KEY)
+                    );
+                    final Intent lightboxIntent = new Intent(getContext(), YoutubeLightBox.class);
+                    lightboxIntent.putExtra(YoutubeLightBox.KEY_VIDEO_ID, youtubeKey);
+                    getContext().startActivity(lightboxIntent);
+                }
+            }
+        });
 
         return rootView;
     }
@@ -142,7 +159,6 @@ public class MovieTrailerFragment extends Fragment implements  LoaderManager.Loa
         switch (loader.getId()) {
             case TRAILER_DETAIL_LOADER:
                 Log.d(LOG_TAG, "Inside onLoaderReset - Trailer Adapter");
-                trailerAdapter.release();
                 trailerAdapter.swapCursor(null);
             break;
         }

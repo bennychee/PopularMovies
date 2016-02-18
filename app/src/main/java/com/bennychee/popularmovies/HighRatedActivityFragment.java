@@ -33,7 +33,7 @@ public class HighRatedActivityFragment extends Fragment implements LoaderManager
 
     private FrameLayout frameLayout;
 
-    public static final int FAV_MOVIE_LOADER = 4;
+    public static final int HR_MOVIE_LOADER = 5;
     private Uri firstMovieUri;
     private boolean firstEntry = true;
 
@@ -70,7 +70,7 @@ public class HighRatedActivityFragment extends Fragment implements LoaderManager
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(FAV_MOVIE_LOADER, null, this);
+        getLoaderManager().initLoader(HR_MOVIE_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -154,13 +154,15 @@ public class HighRatedActivityFragment extends Fragment implements LoaderManager
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == FAV_MOVIE_LOADER) {
+        if (id == HR_MOVIE_LOADER) {
+            final int NUMBER_OF_MOVIES = 20;
+
             return new CursorLoader(getActivity(),
                     MovieContract.MovieEntry.CONTENT_URI,
                     new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_IMAGE_URL},
-                    MovieContract.MovieEntry.COLUMN_FAVORITE + "= ?",
-                    new String[]{Integer.toString(1)},
-                    null);
+                    null,
+                    null,
+                    MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC" + " LIMIT " + NUMBER_OF_MOVIES);
         } else {
             return null;
         }
@@ -169,7 +171,7 @@ public class HighRatedActivityFragment extends Fragment implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == FAV_MOVIE_LOADER) {
+        if (loader.getId() == HR_MOVIE_LOADER) {
             Log.d(LOG_TAG, LOG_TAG + " onLoadFinished");
             popMovieAdapter.swapCursor(data);
 
@@ -180,7 +182,7 @@ public class HighRatedActivityFragment extends Fragment implements LoaderManager
             }
 
             int numMovie = data.getCount();
-            Log.d(LOG_TAG, "Number of Movies in Fav = " + numMovie);
+            Log.d(LOG_TAG, "Number of Movies in High Rated = " + numMovie);
 
             if (numMovie == 0) {
                 firstMovieUri = Uri.EMPTY;

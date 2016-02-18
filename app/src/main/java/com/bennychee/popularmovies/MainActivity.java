@@ -24,7 +24,7 @@ import android.widget.SpinnerAdapter;
 import com.bennychee.popularmovies.adapters.PopMovieAdapter;
 import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
-public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, FavActivityFragment.Callback{
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, FavActivityFragment.Callback, HighRatedActivityFragment.Callback{
 
     private boolean mTwoPane;
     private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
@@ -86,10 +86,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                                     .commit();
                             break;
                         case 1:
+                            Log.d(LOG_TAG, "High Rated Selected from Spinner");
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_movies, new HighRatedActivityFragment())
+                                    .commit();
+                            break;
+                        case 2:
                             Log.d(LOG_TAG, "Favorites Selected from Spinner");
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.fragment_movies, new FavActivityFragment())
-//                                    .addToBackStack(MAINFRAGMENT_TAG)
                                     .commit();
                             break;
                     }
@@ -121,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             mTwoPane = false;
         }
 
+        MovieSyncAdapter.initializeSyncAdapter(getApplicationContext());
     }
 
 /*
@@ -229,4 +235,25 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         }
     }
 
+    @Override
+    public void onHighRatedItemSelected(Uri contentUri) {
+        if (mTwoPane) {
+            Bundle args = new Bundle();
+            args.putParcelable(PopMovieDetailActivityFragment.DETAIL_URI, contentUri);
+
+            PopMovieDetailActivityFragment fragment = new PopMovieDetailActivityFragment();
+            fragment.setArguments(args);
+
+            Log.d(LOG_TAG, "Inside Callback - onHighRatedItemSelected");
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, POPMOVIEFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, PopMovieDetailActivity.class)
+                    .setData(contentUri);
+            startActivity(intent);
+        }
+
+    }
 }
