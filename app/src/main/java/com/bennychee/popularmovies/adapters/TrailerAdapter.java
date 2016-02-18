@@ -3,11 +3,13 @@ package com.bennychee.popularmovies.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bennychee.popularmovies.BuildConfig;
@@ -17,6 +19,7 @@ import com.bennychee.popularmovies.data.MovieContract;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubeThumbnailLoader;
 import com.google.android.youtube.player.YouTubeThumbnailView;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +54,7 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
         Log.d(LOG_TAG, "binding view: " + view.toString());
 
         TextView trailerNameTextView = (TextView) view.findViewById(R.id.trailer_name);
+//        ImageView imageView = (ImageView) view.findViewById(R.id.youtube_thumbnail);
 
         String trailerName = cursor.getString(
                 cursor.getColumnIndex(
@@ -68,11 +72,27 @@ public class TrailerAdapter extends CursorAdapter implements YouTubeThumbnailVie
                             .COLUMN_YOUTUBE_KEY)
         );
 
+/*
+        String youtubeImageUrl = "http://img.youtube.com/vi/";
+
+        Uri imageUri = Uri.parse(youtubeImageUrl).buildUpon()
+                .appendPath(youtubeKey)
+                .appendPath("default.jpg")
+                .build();
+
+        Picasso.with(context)
+                .load(imageUri)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+                .tag(context)
+                .into(imageView);
+*/
+
         youTubeThumbnailView = new YouTubeThumbnailView(context);
         youTubeThumbnailView = (YouTubeThumbnailView) view.findViewById(R.id.youtube_thumbnail);
         youTubeThumbnailLoader = thumbnailLoaderMap.get(youTubeThumbnailView);
 
-        if (isNotInit) {
+        if (view == null) {
             //Case 1 - We need to initialize the loader
             youTubeThumbnailView.initialize(BuildConfig.YOUTUBE_API_TOKEN, this);
             Log.d(LOG_TAG, "Youtube Thumbnail Initialized - Cursor is First");
