@@ -126,8 +126,14 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
 
         if (getResources().getBoolean(R.bool.dual_pane)) {
             backToolbar.setVisibility(View.INVISIBLE);
+        } else {
+            backToolbar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().finish();
+                }
+            });
         }
-
         return rootView;
     }
 

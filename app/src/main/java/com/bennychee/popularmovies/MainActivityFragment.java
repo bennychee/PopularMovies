@@ -40,24 +40,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public static final int MOVIE_LOADER = 3;
     private Uri firstMovieUri;
     private boolean firstEntry = true;
-
     private SyncReceiver myReceiver;
 
     private int count = 1;
     private int mPosition = GridView.INVALID_POSITION;
-
     private Uri movieUri;
-
     private boolean isOnResume = false;
-
     private int scrollPosition = GridView.INVALID_POSITION;
-
     private static final String SELECTED_KEY = "selected_position";
-
     private ProgressDialog progressDialog;
-
     private ProgressDialog firstDialog;
-
     final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
     public interface Callback {
@@ -101,7 +93,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-
     private void updateMovies() {
         MovieSyncAdapter.syncImmediately(getActivity());
     }
@@ -134,7 +125,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -160,7 +150,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 }
             }
         });
-
 
         Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
@@ -295,13 +284,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 if (isOnResume) {
                     firstDialog.dismiss();
                 }
-/*
-                if (isOnResume) {
-                    ((Callback) getActivity())
-                            .onItemSelected(firstMovieUri);
-                    isOnResume = false;
-                }
-*/
             }
         }
     }

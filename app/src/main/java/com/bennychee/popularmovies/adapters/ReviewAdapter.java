@@ -31,8 +31,6 @@ public class ReviewAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        Log.d(LOG_TAG, "binding view: " + view.toString());
-
         TextView authorTextView = (TextView) view.findViewById(R.id.review_author);
         final TextView reviewTextView = (TextView) view.findViewById(R.id.review_content);
         final TextView showAll = (TextView) view.findViewById(R.id.detail_read_all);
@@ -55,7 +53,6 @@ public class ReviewAdapter extends CursorAdapter {
         authorTextView.setTypeface(null, Typeface.BOLD);
 
         reviewTextView.setText(review);
-        Log.d(LOG_TAG, "Line Count = " + reviewTextView.getLineCount() + "/" + reviewTextView.getMaxLines());
         if (reviewTextView.getLineCount() > reviewTextView.getMaxLines()) {
             showAll.setTypeface(null, Typeface.BOLD_ITALIC);
             showAll.setVisibility(View.VISIBLE);
@@ -70,6 +67,5 @@ public class ReviewAdapter extends CursorAdapter {
                 reviewTextView.setMaxLines(Integer.MAX_VALUE);
             }
         });
-
     }
 }
