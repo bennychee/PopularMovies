@@ -94,10 +94,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-    private void updateMovies() {
-        MovieSyncAdapter.syncImmediately(getActivity());
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -107,7 +103,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             // The gridview probably hasn't even been populated yet.  Actually perform the
             // swapout in onLoadFinished.
             scrollPosition = savedInstanceState.getInt("ScrollPosition");
-            Log.d(LOG_TAG, "SaveInstanceState on Scroll Position = " + scrollPosition);
         }
     }
 
@@ -157,7 +152,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             }
         });
 
-        Log.d(LOG_TAG, "MainActivityFragment - onCreateView");
         popMoviesGridView = (GridView) rootView.findViewById(R.id.movie_posters_gridview);
         if(getResources().getBoolean(R.bool.dual_pane)) {
             popMoviesGridView.setNumColumns(3);
@@ -165,7 +159,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         popMovieAdapter = new PopMovieAdapter(getActivity(), null, 0);
         popMoviesGridView.setAdapter(popMovieAdapter);
 
-        Log.d(LOG_TAG, "popMoviesGridView: " + popMoviesGridView.getAdapter().toString());
         popMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -206,7 +199,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
 
         scrollPosition = popMoviesGridView.getFirstVisiblePosition();
-        Log.d(LOG_TAG, "Scroll Position = " + scrollPosition);
         outState.putInt("ScrollPosition", scrollPosition);
 
         super.onSaveInstanceState(outState);
@@ -257,17 +249,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, "Inside onPause");
-    }
-
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == MOVIE_LOADER) {
-            Log.d(LOG_TAG, LOG_TAG + " onLoadFinished");
             popMovieAdapter.swapCursor(data);
 
             if (mPosition != GridView.INVALID_POSITION) {
@@ -276,10 +260,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 popMoviesGridView.smoothScrollToPosition(mPosition);
             }
 
-            Log.d(LOG_TAG, "Scroll Position in onLoadFinished " + scrollPosition);
 
             if (scrollPosition != GridView.INVALID_POSITION) {
-                Log.d(LOG_TAG, "Scrolling to Position = " + scrollPosition);
                 popMoviesGridView.smoothScrollToPosition(scrollPosition);
             }
 
