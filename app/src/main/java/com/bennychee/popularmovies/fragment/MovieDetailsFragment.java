@@ -27,8 +27,6 @@ import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.squareup.picasso.Picasso;
 
-import de.greenrobot.event.EventBus;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -37,7 +35,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     private static final String LOG_TAG = MovieDetailsFragment.class.getSimpleName();
 
     private TextView mDescription;
-    private AppBarLayout mAppBarLayout;
     private CollapsingToolbarLayout mToolbar;
     private ImageView posterImageView;
     private ImageView backdropImageView;
@@ -59,9 +56,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     private int movieId;
 
     private int count = 0;
-
-    private ProgressDialog progressBar;
-
 
     private static final String[] MOVIE_DETAIL_COLUMNS = {
             MovieEntry.TABLE_NAME + "." + MovieEntry._ID,
@@ -85,8 +79,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        EventBus.getDefault().register(this);
-//        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
     @Override
@@ -138,12 +130,6 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         }
 
         return rootView;
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 
     @Override
