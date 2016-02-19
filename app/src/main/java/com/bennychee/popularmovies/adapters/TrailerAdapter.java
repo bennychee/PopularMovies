@@ -1,7 +1,6 @@
 package com.bennychee.popularmovies.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -12,17 +11,9 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bennychee.popularmovies.BuildConfig;
 import com.bennychee.popularmovies.R;
-import com.bennychee.popularmovies.YoutubeLightBox;
 import com.bennychee.popularmovies.data.MovieContract;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubeThumbnailLoader;
-import com.google.android.youtube.player.YouTubeThumbnailView;
 import com.squareup.picasso.Picasso;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by B on 21/01/2016.

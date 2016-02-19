@@ -1,12 +1,9 @@
 package com.bennychee.popularmovies.fragment;
 
 
-import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -15,18 +12,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.Utility;
 import com.bennychee.popularmovies.adapters.ReviewAdapter;
-import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
-import com.bennychee.popularmovies.event.ReviewEvent;
 
 
 /**

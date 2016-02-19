@@ -1,19 +1,9 @@
 package com.bennychee.popularmovies;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-import com.bennychee.popularmovies.adapters.PopMovieAdapter;
 import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback, FavActivityFragment.Callback, HighRatedActivityFragment.Callback{

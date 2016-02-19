@@ -1,18 +1,10 @@
 package com.bennychee.popularmovies;
 
-import android.accounts.Account;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SyncStatusObserver;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
-import com.bennychee.popularmovies.adapters.PopMovieAdapter;
-import com.bennychee.popularmovies.data.MovieContract;
-import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
 public class SplashActivity extends AppCompatActivity{
 
