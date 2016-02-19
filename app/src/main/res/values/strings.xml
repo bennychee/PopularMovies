@@ -43,10 +43,7 @@
     <string name="pref_enable_initialsync_false">false</string>
     <string name="pref_enable_initialsync_true">true</string>
 
-    <string name="notification.content">New Movies Out Today!</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notification.content">New Movies Loaded, Check it out!</string>
 
     <string name="runtime_mins">%1$s mins</string>
     <string name="ratings_ten">%1$s/10</string>
