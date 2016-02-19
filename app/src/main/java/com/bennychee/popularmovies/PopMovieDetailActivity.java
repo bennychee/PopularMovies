@@ -14,8 +14,6 @@ public class PopMovieDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         setContentView(R.layout.activity_pop_movie_detail);
 
         if (savedInstanceState == null) {
