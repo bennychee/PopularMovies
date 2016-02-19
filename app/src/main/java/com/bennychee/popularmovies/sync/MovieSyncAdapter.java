@@ -43,6 +43,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
+
     public final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
 
     public static final int SYNC_INTERVAL = 60 * 60 * 10; // 10 hours
@@ -66,10 +67,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(LOG_TAG, "onPerformSync Called " + syncResult.stats.numEntries);
 
-
-        if (Utility.isOneDayLater(lastSyncTime) && initialSync()) {
+        if (initialSync()) {
 
             final Intent intent = new Intent();
             intent.setAction("com.bennychee.syncstatus");
@@ -96,9 +95,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             popMovieModelCall.enqueue(new Callback<PopMovieModel>() {
                 @Override
                 public void onResponse(Response<PopMovieModel> response) {
-                    Log.d(LOG_TAG, "Response Status: " + response.code());
                     if (!response.isSuccess()) {
-                        Log.d(LOG_TAG, "Unsuccessful Call for Pop Movie Model" + response.errorBody().toString());
+//                        Log.d(LOG_TAG, "Unsuccessful Call for Pop Movie Model" + response.errorBody().toString());
                     } else {
                         List<PopMovieResult> movieResultList = response.body().getResults();
                         Utility.storeMovieList(getContext(), movieResultList);
@@ -107,8 +105,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         int count = 1;
 
                         for (final PopMovieResult movie : movieResultList) {
-
-                            Log.d(LOG_TAG, "Counting movie list = " + count + "/" + size);
 
                             if (count == size) {
                                 Log.d(LOG_TAG, "Sending Stopping");
@@ -170,12 +166,11 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         movieRuntimeCall.enqueue(new Callback<MovieRuntime>() {
             @Override
             public void onResponse(Response<MovieRuntime> response) {
-                Log.d(LOG_TAG, "Movie " + movieId + " Runtime Response Status: " + response.code());
+//                Log.d(LOG_TAG, "Movie " + movieId + " Runtime Response Status: " + response.code());
                 if (!response.isSuccess()) {
-                    Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
+//                    Log.e(LOG_TAG, "Unsuccessful Call for Runtime " + movieId + " Response: " + response.errorBody().toString());
 
                     if (runtimeCount < RETRY_COUNT) {
-                        //Retry 3 times
                         Handler rHandler = new Handler();
                         Runnable rvr = new Runnable() {
                             @Override
@@ -184,14 +179,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         };
                         rHandler.postDelayed(rvr, RETRY_TIME);
 
-                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + runtimeCount);
-                        //MovieRuntime(context, movieId, apiKey, service);
+//                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + runtimeCount);
                         runtimeCount++;
                     }
 
                 } else {
                     int runtime = response.body().getRuntime();
-                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
+//                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Runtime: " + runtime);
                     Utility.updateMovieWithRuntime(context, movieId, runtime);
                 }
             }
@@ -210,9 +204,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         movieTrailersCall.enqueue(new Callback<MovieTrailers>() {
             @Override
             public void onResponse(Response<MovieTrailers> response) {
-                Log.d(LOG_TAG, "Movie " + movieId + " Trailers Response Status: " + response.code());
+//                Log.d(LOG_TAG, "Movie " + movieId + " Trailers Response Status: " + response.code());
                 if (!response.isSuccess()) {
-                    Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
+//                    Log.e(LOG_TAG, "Unsuccessful Call for Trailer " + movieId + " Response: " + response.errorBody().toString());
                     if (trailerCount < RETRY_COUNT) {
                         //Retry RETRY_COUNT times
 
@@ -228,13 +222,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
 
                         Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + trailerCount);
-//                        MovieTrailers(context, movieId, apiKey, service);
                         trailerCount++;
                     }
                 } else {
                     trailerCount = 0;
                     List<com.bennychee.popularmovies.api.models.trailers.Result> trailersResultList = response.body().getResults();
-                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
+//                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Trailers Added: " + trailersResultList.size());
                     Utility.storeTrailerList(context, movieId, trailersResultList);
                 }
             }
@@ -252,9 +245,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         movieReviewsCall.enqueue(new Callback<MovieReviews>() {
             @Override
             public void onResponse(Response<MovieReviews> response) {
-                Log.d(LOG_TAG, "Movie " + movieId + " Reviews Response Status: " + response.code());
+//                Log.d(LOG_TAG, "Movie " + movieId + " Reviews Response Status: " + response.code());
                 if (!response.isSuccess()) {
-                    Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
+//                    Log.e(LOG_TAG, "Unsuccessful Call for Reviews " + movieId + " Response: " + response.errorBody().toString());
                     if (reviewCount < RETRY_COUNT) {
                         //Retry RETRY_COUNT times
 
@@ -267,14 +260,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         };
                         rHandler.postDelayed(rvr, RETRY_TIME);
 
-                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + reviewCount);
-//                        MovieReview(context, movieId, apiKey, service);
+//                        Log.d(LOG_TAG, "Retry Retrofit service " + movieId + " #" + reviewCount);
                         reviewCount++;
                     }
                 } else {
                     reviewCount = 0;
                     List<Result> reviewResultList = response.body().getResults();
-                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
+//                    Log.d(LOG_TAG, "Movie ID: " + movieId + " Reviews Added: " + reviewResultList.size());
                     Utility.storeCommentList(context, movieId, reviewResultList);
                 }
             }
@@ -287,27 +279,25 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private boolean initialSync () {
+        boolean isSync;
         Context context = getContext();
         //checking the last update and notify if it' the first of the day
-        SharedPreferences prefs = context.getSharedPreferences("isInitialSync", 0);
+        String lastNotificationKey = context.getString(R.string.pref_last_notification);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
 
-        boolean syncOrNot = prefs.getBoolean("firstSync", true);
-        Log.d(LOG_TAG, "First Sync = " + syncOrNot);
+        lastSyncTime = prefs.getLong(lastNotificationKey, 0);
+        isSync = Utility.isOneDayLater(lastSyncTime);
 
-        if (syncOrNot) {
-            editor.putBoolean("firstSync", false);
-        } else {
-            editor.putBoolean("firstSync", true);
-        }
-
+        lastSyncTime = System.currentTimeMillis();
+        editor.putLong("timeLastSync", lastSyncTime);
         editor.commit();
-        return syncOrNot;
+
+        return isSync;
     }
 
-
     private void notifyMovie() {
-
         Context context = getContext();
         //checking the last update and notify if it' the first of the day
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

@@ -243,14 +243,20 @@ public class Utility {
     public static boolean isOneDayLater(long lastTimestamp) {
         // 1000 milliseconds/second *
         // 60 seconds/minute *
-        // 60 minutes/hour *
+        // 60 minutes/hour
         // 24 hours/day
         final long ONE_DAY = 1000 * 60 * 60 * 24;
 
         long now = System.currentTimeMillis();
 
         long timePassed = now - lastTimestamp;
-        return (timePassed > ONE_DAY);
+        Log.d(LOG_TAG, "Last = " + lastTimestamp + " now = " + now + " timepassed = " + timePassed);
+
+        if (timePassed > ONE_DAY) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -302,85 +308,6 @@ public class Utility {
             return youtubeKeyUrl;
         } else {
             return null;
-        }
-    }
-
-    /**
-     * Fetches the trailer from the database, as fetched from the cloud service
-     *
-     * @param context  The application context
-     * @param movieUri The URI of the movie, pointing in the movie table
-     * @return The runtime, or -1 if something goes wrong
-     */
-    public static int checkTrailerFromUri(Context context, Uri movieUri) {
-        long _id = MovieContract.MovieEntry.getIdFromUri(movieUri);
-
-        Cursor c = context.getContentResolver().query(
-                MovieContract.TrailerEntry.CONTENT_URI,
-                new String[]{MovieContract.TrailerEntry.COLUMN_MOVIE_ID},
-                MovieContract.TrailerEntry.COLUMN_MOVIE_ID + " = ?",
-                new String[]{String.valueOf(_id)},
-                null);
-
-        if (c.moveToFirst()) {
-            int trailer = c.getColumnIndex(MovieContract.TrailerEntry.COLUMN_MOVIE_ID);
-            Log.d(LOG_TAG, "Trailer check: " + c.getInt(trailer));
-            return c.getInt(trailer);
-        } else {
-            return -1;
-        }
-    }
-
-    /**
-     * Fetches the review from the database, as fetched from the cloud service
-     *
-     * @param context  The application context
-     * @param movieUri The URI of the movie, pointing in the movie table
-     * @return The runtime, or -1 if something goes wrong
-     */
-    public static int checkReviewFromUri(Context context, Uri movieUri) {
-        long _id = MovieContract.MovieEntry.getIdFromUri(movieUri);
-
-        Cursor c = context.getContentResolver().query(
-                MovieContract.ReviewEntry.CONTENT_URI,
-                new String[]{MovieContract.ReviewEntry.COLUMN_MOVIE_ID},
-                MovieContract.ReviewEntry.COLUMN_MOVIE_ID + " = ?",
-                new String[]{String.valueOf(_id)},
-                null);
-
-        if (c.moveToFirst()) {
-            int review = c.getColumnIndex(MovieContract.ReviewEntry.COLUMN_MOVIE_ID);
-            Log.d(LOG_TAG, "Review check: " + c.getInt(review));
-            return c.getInt(review);
-        } else {
-            return -1;
-        }
-    }
-
-
-    /**
-     * Fetches the runtime from the database, as fetched from the cloud service
-     *l
-     * @param context  The application context
-     * @param movieUri The URI of the movie, pointing in the movie table
-     * @return The runtime, or -1 if something goes wrong
-     */
-    public static int checkRuntimeFromUri(Context context, Uri movieUri) {
-        long _id = MovieContract.MovieEntry.getIdFromUri(movieUri);
-
-        Cursor c = context.getContentResolver().query(
-                MovieContract.MovieEntry.CONTENT_URI,
-                new String[]{MovieContract.MovieEntry.COLUMN_RUNTIME},
-                MovieContract.MovieEntry._ID + " = ?",
-                new String[]{String.valueOf(_id)},
-                null);
-
-        if (c.moveToFirst()) {
-            int runtime = c.getColumnIndex(MovieContract.MovieEntry.COLUMN_RUNTIME);
-            Log.d(LOG_TAG, "Runtime check: " + c.getInt(runtime));
-            return c.getInt(runtime);
-        } else {
-            return -1;
         }
     }
 }

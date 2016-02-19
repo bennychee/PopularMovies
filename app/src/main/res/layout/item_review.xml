@@ -18,20 +18,20 @@
             android:layout_marginBottom="4dp"
             android:clickable="true"
             android:focusable="true"
-            android:textSize="25sp"
+            android:textSize="23sp"
             />
 
         <TextView
             android:id="@+id/review_content"
             android:maxLines="5"
-            android:textSize="23sp"
+            android:textSize="18sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/detail_read_all"
             android:clickable="true"
-            android:textSize="23sp"
+            android:textSize="18sp"
             android:text="[   Read more...]"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

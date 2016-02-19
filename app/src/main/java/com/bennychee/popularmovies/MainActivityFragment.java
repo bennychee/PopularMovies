@@ -75,10 +75,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         getActivity().registerReceiver(myReceiver, intentFilter);
 
     }
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //TODO: inflater.inflate(R.menu.menu_pop_movies, menu);
-    }
 
     @Override
     public void onStart() {

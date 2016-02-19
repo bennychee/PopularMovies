@@ -167,8 +167,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }        shareIntent.setType("text/plain");
 
-        Log.d(LOG_TAG, "Inside Share Forecast Intent");
-
         if (mUri !=null) {
             shareIntent.putExtra(Intent.EXTRA_TEXT, Utility.fetchYoutubeKeyUrlFromUri(getContext(), mUri));
         } else {
@@ -388,7 +386,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.d(LOG_TAG, "Inside onCreateOptionsMenu");
         inflater.inflate(R.menu.popmoviedetailfragment, menu);
         MenuItem menuItem = menu.findItem(R.id.action_share);
 
@@ -396,7 +393,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
                 (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         if (mShareActionProvider !=null) {
-            Log.d(LOG_TAG, "mShareActionProvider set Share Intent");
             mShareActionProvider.setShareIntent(createShareForecastIntent());
         } else {
             Log.d(LOG_TAG, "mShareActionProvider is null");
