@@ -6,4 +6,5 @@
     android:id="@+id/movie_detail_container"
     tools:context="com.bennychee.popularmovies.PopMovieDetailActivityFragment"
     tools:layout="@layout/fragment_movie_detail">
+
 </FrameLayout>

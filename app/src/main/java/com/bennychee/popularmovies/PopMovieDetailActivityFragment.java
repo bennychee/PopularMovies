@@ -1,15 +1,25 @@
 package com.bennychee.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -60,7 +70,6 @@ public class PopMovieDetailActivityFragment extends Fragment {
     private ViewPager viewPager;
 
     public PopMovieDetailActivityFragment() {
-        // Required empty public constructor
         setHasOptionsMenu(true);
     }
 
@@ -92,6 +101,19 @@ public class PopMovieDetailActivityFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.tab_layout, container, false);
+
+/*
+        Toolbar toolbar;
+
+        if(!(getResources().getBoolean(R.bool.dual_pane))) {
+            toolbar = (Toolbar) rootView.findViewById(R.id.pop_movie_toolbar);
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        } else {
+            toolbar = (Toolbar) rootView.findViewById(R.id.pop_movie_toolbar);
+            toolbar.setVisibility(View.INVISIBLE);
+            toolbar.invalidate();
+        }
+*/
 
         tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         tabLayout.addTab(tabLayout.newTab().setText("Details"));
@@ -132,7 +154,28 @@ public class PopMovieDetailActivityFragment extends Fragment {
             }
         });
 
+        Log.d(LOG_TAG, "App theme = " + getResources().getResourceEntryName(getContext().getApplicationInfo().theme));
+
         return rootView;
+    }
+
+    private Intent createShareForecastIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        } else {
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        }        shareIntent.setType("text/plain");
+
+        Log.d(LOG_TAG, "Inside Share Forecast Intent");
+
+        if (mUri !=null) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, Utility.fetchYoutubeKeyUrlFromUri(getContext(), mUri));
+        } else {
+            Log.d(LOG_TAG, "URI is null");
+
+        }
+        return shareIntent;
     }
 
     @Override
@@ -148,8 +191,22 @@ public class PopMovieDetailActivityFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mUri != null) {
+            Log.d(LOG_TAG, "Saving State for URI = " + mUri.toString());
+            outState.putString("URI", mUri.toString());
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("URI")) {
+            mUri = Uri.parse(savedInstanceState.getString("URI"));
+            Log.d(LOG_TAG, "Saved State URI = " + mUri.toString());
+        }
 
         if (mUri != null) {
             int movieId = Utility.fetchMovieIdFromUri(getContext(), mUri);
@@ -227,6 +284,12 @@ public class PopMovieDetailActivityFragment extends Fragment {
         public int getCount() {
             return mNumOfTabs;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "Inside onResume");
     }
 
     private void MovieRuntime(final Context context, final int movieId, final String apiKey, final MovieService service) {
@@ -321,5 +384,22 @@ public class PopMovieDetailActivityFragment extends Fragment {
                 //EventBus.getDefault().post(new ReviewEvent(false));
             }
         });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d(LOG_TAG, "Inside onCreateOptionsMenu");
+        inflater.inflate(R.menu.popmoviedetailfragment, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        ShareActionProvider mShareActionProvider =
+                (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if (mShareActionProvider !=null) {
+            Log.d(LOG_TAG, "mShareActionProvider set Share Intent");
+            mShareActionProvider.setShareIntent(createShareForecastIntent());
+        } else {
+            Log.d(LOG_TAG, "mShareActionProvider is null");
+        }
     }
 }

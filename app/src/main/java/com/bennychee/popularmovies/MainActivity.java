@@ -6,10 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -66,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 /*
         ringProgressDialog = new ProgressDialog(this);
 */
+
+        Log.d(LOG_TAG, "App theme = " + getResources().getResourceEntryName(getApplicationInfo().theme));
 
         navigationSpinner = new Spinner(getSupportActionBar().getThemedContext());
         navigationSpinner.setAdapter(spinnerAdapter);
@@ -175,16 +181,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+/*
         if (id == R.id.action_settings) {
             return true;
+
         }
+        */
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt("NavigationSpinner", navigationSpinner.getSelectedItemPosition());
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -206,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, fragment, POPMOVIEFRAGMENT_TAG)
-                    .commit();
+                    .commitAllowingStateLoss();
         } else {
             Intent intent = new Intent(this, PopMovieDetailActivity.class)
                     .setData(contentUri);

@@ -77,7 +77,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             intent.putExtra("SYNCING_STATUS", "RUNNING");
             getContext().sendBroadcast(intent);
 
-
             String sortOrder = Utility.getPreferredSortOrder(getContext());
             Log.d(LOG_TAG, "Sort Order: " + sortOrder);
 

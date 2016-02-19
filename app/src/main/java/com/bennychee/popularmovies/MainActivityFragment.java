@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
+import android.graphics.LinearGradient;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -45,6 +46,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private int count = 1;
     private int mPosition = GridView.INVALID_POSITION;
     private Uri movieUri;
+    private Uri intentUri;
     private boolean isOnResume = false;
     private int scrollPosition = GridView.INVALID_POSITION;
     private static final String SELECTED_KEY = "selected_position";
@@ -67,7 +69,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         setHasOptionsMenu(true);
 
         myReceiver = new SyncReceiver();
+
         IntentFilter intentFilter = new IntentFilter("com.bennychee.syncstatus");
+
         getActivity().registerReceiver(myReceiver, intentFilter);
 
     }
@@ -83,13 +87,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (firstDialog.isShowing()){
+            firstDialog.dismiss();
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         Log.d(LOG_TAG, "Inside onResume");
         isOnResume = true;
         if (getResources().getBoolean(R.bool.dual_pane)) {
             firstDialog.show();
-         //   firstDialog.hide();
+            firstDialog.hide();
         }
     }
 
@@ -113,6 +125,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (firstDialog.isShowing()){
+            firstDialog.dismiss();
+        }
         getActivity().unregisterReceiver(myReceiver);
 
     }
@@ -144,8 +159,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             public void onDismiss(DialogInterface dialog) {
                 if (isOnResume) {
                     Log.d(LOG_TAG, "onResume Loading URI = " + firstMovieUri);
-                    ((Callback) getActivity())
-                            .onItemSelected(firstMovieUri);
+                    if(firstMovieUri != null) {
+                        ((Callback) getActivity())
+                                .onItemSelected(firstMovieUri);
+                    }
                     isOnResume = false;
                 }
             }
@@ -212,19 +229,22 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             Log.d(LOG_TAG, "Receiving Broadcast");
             Bundle extras = intent.getExtras();
             String syncStatus;
-            if (extras != null) {
-                syncStatus = extras.getString("SYNCING_STATUS");
-                Log.d(LOG_TAG, "SyncStatus = " + syncStatus);
-                //if (syncStatus == "RUNNING") {
-                if (syncStatus.equals("RUNNING")) {
-                    Log.d(LOG_TAG, "Intent Running");
-                    progressDialog.setTitle("Please wait....");
-                    progressDialog.setMessage("Loading Movies....");
-                    progressDialog.setIndeterminate(true);
-                    progressDialog.show();
-                } else if (syncStatus.equals("STOPPING")) {
-                    Log.d(LOG_TAG, "Intent Stopping");
-                    progressDialog.dismiss();
+            String getUri;
+            if (intent.getAction().equals("com.bennychee.syncstatus")) {
+                if (extras != null) {
+                    syncStatus = extras.getString("SYNCING_STATUS");
+                    Log.d(LOG_TAG, "SyncStatus = " + syncStatus);
+                    //if (syncStatus == "RUNNING") {
+                    if (syncStatus.equals("RUNNING")) {
+                        Log.d(LOG_TAG, "Intent Running");
+                        progressDialog.setTitle("Please wait....");
+                        progressDialog.setMessage("Loading Movies....");
+                        progressDialog.setIndeterminate(true);
+                        progressDialog.show();
+                    } else if (syncStatus.equals("STOPPING")) {
+                        Log.d(LOG_TAG, "Intent Stopping");
+                        progressDialog.dismiss();
+                    }
                 }
             }
         }

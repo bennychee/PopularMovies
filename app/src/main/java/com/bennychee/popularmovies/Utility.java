@@ -279,6 +279,33 @@ public class Utility {
     }
 
     /**
+     * Fetches the youtube Key from the database, as fetched from the cloud service
+     *
+     * @param context  The application context
+     * @param movieUri The URI of the movie, pointing in the movie table
+     * @return The youtube key, or -1 if something goes wrong
+     */
+    public static String fetchYoutubeKeyUrlFromUri(Context context, Uri movieUri) {
+        long movieId = fetchMovieIdFromUri(context, movieUri);
+        String baseUrl = "https://www.youtube.com/watch?v=";
+
+        Cursor c = context.getContentResolver().query(
+                MovieContract.TrailerEntry.CONTENT_URI,
+                null,
+                MovieContract.TrailerEntry.COLUMN_MOVIE_ID + "=?",
+                new String[]{String.valueOf(movieId)},
+                null);
+
+        if (c.moveToFirst()) {
+            int youtubeIndex = c.getColumnIndex(MovieContract.TrailerEntry.COLUMN_YOUTUBE_KEY);
+            String youtubeKeyUrl = baseUrl + c.getString(youtubeIndex);
+            return youtubeKeyUrl;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Fetches the trailer from the database, as fetched from the cloud service
      *
      * @param context  The application context

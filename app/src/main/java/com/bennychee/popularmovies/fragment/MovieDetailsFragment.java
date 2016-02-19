@@ -2,8 +2,10 @@ package com.bennychee.popularmovies.fragment;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -12,9 +14,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -124,6 +132,8 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
         backToolbar = (Toolbar) rootView.findViewById(R.id.flexible_example_toolbar);
         favButton = (FloatingActionButton) rootView.findViewById(R.id.movie_favorite);
 
+        ((AppCompatActivity) getActivity()).setSupportActionBar(backToolbar);
+
         if (getResources().getBoolean(R.bool.dual_pane)) {
             backToolbar.setVisibility(View.INVISIBLE);
         } else {
@@ -134,6 +144,7 @@ public class MovieDetailsFragment extends Fragment implements  LoaderManager.Loa
                 }
             });
         }
+
         return rootView;
     }
 
