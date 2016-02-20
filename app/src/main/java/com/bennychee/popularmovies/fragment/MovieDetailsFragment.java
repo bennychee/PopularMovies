@@ -1,11 +1,9 @@
 package com.bennychee.popularmovies.fragment;
 
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -28,7 +26,7 @@ import com.bennychee.popularmovies.data.MovieContract.MovieEntry;
 import com.squareup.picasso.Picasso;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link MovieDetailsFragment} subclass.
  */
 public class MovieDetailsFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor> {
 

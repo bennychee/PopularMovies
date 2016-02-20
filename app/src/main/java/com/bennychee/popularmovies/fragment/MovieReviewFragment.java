@@ -22,7 +22,7 @@ import com.bennychee.popularmovies.data.MovieContract.ReviewEntry;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link MovieReviewFragment} subclass.
  */
 public class MovieReviewFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor> {
 

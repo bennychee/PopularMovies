@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,18 +26,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private String[] category = null;
 
     private Spinner navigationSpinner;
-//    private SyncReceiver myReceiver;
-    private ProgressDialog ringProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-/*
-        myReceiver = new SyncReceiver();
-        IntentFilter intentFilter = new IntentFilter("com.bennychee.syncstatus");
-        registerReceiver(myReceiver, intentFilter);
-*/
 
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG, LOG_TAG);
@@ -55,10 +45,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 R.array.category,
                 R.layout.spinner_dropdown_item
         );
-
-/*
-        ringProgressDialog = new ProgressDialog(this);
-*/
 
         Log.d(LOG_TAG, "App theme = " + getResources().getResourceEntryName(getApplicationInfo().theme));
 
@@ -101,15 +87,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 }
             });
 
-/*
-        ringProgressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-
-            }
-        });
-*/
-
         if (findViewById(R.id.movie_detail_container) != null) {
             mTwoPane = true;
                         if (savedInstanceState == null) {
@@ -124,59 +101,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         MovieSyncAdapter.initializeSyncAdapter(getApplicationContext());
     }
 
-/*
-    public class SyncReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "Receiving Broadcast");
-            Bundle extras = intent.getExtras();
-            String syncStatus;
-            if (extras != null) {
-                syncStatus = extras.getString("SYNCING_STATUS");
-                Log.d(LOG_TAG, "SyncStatus = " + syncStatus);
-                //if (syncStatus == "RUNNING") {
-                if (syncStatus.equals("RUNNING")) {
-                    Log.d(LOG_TAG, "Intent Running");
-                    ringProgressDialog.setTitle("Please wait....");
-                    ringProgressDialog.setMessage("Loading Movies....");
-                    ringProgressDialog.setIndeterminate(true);
-                    ringProgressDialog.show();
-                } else if (syncStatus.equals("STOPPING")) {
-                    Log.d(LOG_TAG, "Intent Stopping");
-                    ringProgressDialog.dismiss();
-                }
-            }
-        }
-    }
-
-*/
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-/*
-        if (id == R.id.action_settings) {
-            return true;
-
-        }
-        */
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -30,14 +30,10 @@ public class HighRatedActivityFragment extends Fragment implements LoaderManager
     private PopMovieAdapter popMovieAdapter;
     private GridView popMoviesGridView;
 
-
-    private FrameLayout frameLayout;
-
     public static final int HR_MOVIE_LOADER = 5;
     private Uri firstMovieUri;
     private boolean firstEntry = true;
 
-    private int count = 1;
     private int mPosition = GridView.INVALID_POSITION;
     private static final String SELECTED_KEY = "selected_position";
 

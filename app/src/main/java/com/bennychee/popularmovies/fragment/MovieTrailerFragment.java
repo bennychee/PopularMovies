@@ -25,7 +25,7 @@ import com.bennychee.popularmovies.data.MovieContract.TrailerEntry;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * A simple {@link MovieTrailerFragment} subclass.
  */
 public class MovieTrailerFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>{
 

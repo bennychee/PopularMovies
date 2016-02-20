@@ -13,8 +13,10 @@ import com.bennychee.popularmovies.R;
 import com.bennychee.popularmovies.data.MovieContract;
 
 /**
- * Created by B on 21/01/2016.
+ * {@link ReviewAdapter} exposes a list of popular movies with posters
+ * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
  */
+
 public class ReviewAdapter extends CursorAdapter {
 
     public static final String LOG_TAG = ReviewAdapter.class.getSimpleName();

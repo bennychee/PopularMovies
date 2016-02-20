@@ -16,8 +16,10 @@ import com.bennychee.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 /**
- * Created by B on 21/01/2016.
+ * {@link TrailerAdapter} exposes a list of popular movies with posters
+ * from a {@link android.database.Cursor} to a {@link android.widget.ListView}.
  */
+
 public class TrailerAdapter extends CursorAdapter  {
 
     public static final String LOG_TAG = TrailerAdapter.class.getSimpleName();

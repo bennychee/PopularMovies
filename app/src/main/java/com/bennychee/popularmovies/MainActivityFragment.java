@@ -22,7 +22,6 @@ import android.widget.GridView;
 
 import com.bennychee.popularmovies.adapters.PopMovieAdapter;
 import com.bennychee.popularmovies.data.MovieContract;
-import com.bennychee.popularmovies.sync.MovieSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -36,10 +35,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private boolean firstEntry = true;
     private SyncReceiver myReceiver;
 
-    private int count = 1;
     private int mPosition = GridView.INVALID_POSITION;
     private Uri movieUri;
-    private Uri intentUri;
     private boolean isOnResume = false;
     private int scrollPosition = GridView.INVALID_POSITION;
     private static final String SELECTED_KEY = "selected_position";
@@ -62,11 +59,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         setHasOptionsMenu(true);
 
         myReceiver = new SyncReceiver();
-
         IntentFilter intentFilter = new IntentFilter("com.bennychee.syncstatus");
-
         getActivity().registerReceiver(myReceiver, intentFilter);
-
     }
 
     @Override

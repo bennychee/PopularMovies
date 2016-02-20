@@ -74,23 +74,6 @@
                 android:layout_margin="8dp"
                 >
 
-                <!--
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    >
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:id="@+id/movie_name"
-                                    android:textAppearance="@style/TextAppearance.Header"
-                                    style="@style/TextComponent.ItemRow" />
-
-                                </LinearLayout>
-                -->
-
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="match_parent"
@@ -120,7 +103,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceLarge"
-                                android:text="Movie Year"
                                 android:id="@+id/movie_year"
                                 android:paddingBottom="10dp" />
 
@@ -128,7 +110,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:text="Runtime"
                                 android:id="@+id/movie_runtime"
                                 android:paddingBottom="10dp" />
 
@@ -136,14 +117,12 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceSmall"
-                                android:text="Ratings"
                                 android:id="@+id/movie_rating" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceSmall"
-                                android:text="Votes"
                                 android:id="@+id/movie_votes" />
 
                         </LinearLayout>
@@ -153,7 +132,6 @@
                     <TextView
                         android:layout_width="fill_parent"
                         android:layout_height="match_parent"
-                        android:text="Description"
                         android:id="@+id/movie_desc"
                         android:paddingTop="10dp" />
 
@@ -179,27 +157,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     >
-
-                    <!--
-                                        <TextView
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:fontFamily="sans-serif-light"
-                                            android:lineSpacingExtra="8dp"
-                                            android:textSize="16sp"
-                                            android:text = "Trailer"
-                                            android:id="@+id/movie_trailer"
-                                            />
-                    -->
-
-                    <!--
-                                        <ListView
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:id="@+id/listview_detail_trailer"
-                                            android:divider="@null">
-                                        </ListView>
-                    -->
 
                     <GridView
                         android:id="@+id/gridview_detail_trailer"
@@ -240,7 +197,6 @@
                         android:fontFamily="sans-serif-light"
                         android:lineSpacingExtra="8dp"
                         android:textSize="16sp"
-                        android:text = "Movie Review"
                         android:id="@+id/movie_review"
                         />
 
