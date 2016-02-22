@@ -80,7 +80,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(LOG_TAG, "Inside onResume");
+
+        Log.d(LOG_TAG, this.toString() + " Inside onResume");
         isOnResume = true;
         if (getResources().getBoolean(R.bool.dual_pane)) {
             firstDialog.show();
@@ -92,6 +93,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+
+        Log.d(LOG_TAG, this.toString() + " Inside onActivityCreated");
 
         if (savedInstanceState != null && savedInstanceState.containsKey("ScrollPosition")) {
             // The gridview probably hasn't even been populated yet.  Actually perform the
@@ -248,6 +251,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         if (loader.getId() == MOVIE_LOADER) {
             popMovieAdapter.swapCursor(data);
 
+            Log.d(LOG_TAG, this.toString() + " Inside onLoadFinished");
             if (mPosition != GridView.INVALID_POSITION) {
                 // If we don't need to restart the loader, and there's a desired position to restore
                 // to, do so now.
@@ -256,7 +260,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
             if (scrollPosition != GridView.INVALID_POSITION) {
-                popMoviesGridView.smoothScrollToPosition(scrollPosition);
+                popMoviesGridView.setSelection(scrollPosition);
             }
 
             if (firstEntry && data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {

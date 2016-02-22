@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(LOG_TAG, this.toString() + " Inside onResume");
     }
 
     @Override
