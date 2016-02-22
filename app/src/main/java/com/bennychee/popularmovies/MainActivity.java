@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     @Override
     protected void onResume() {
         super.onResume();
-        PopMovieDetailActivityFragment popMovieDetailActivityFragment = (PopMovieDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(POPMOVIEFRAGMENT_TAG);
     }
 
     @Override

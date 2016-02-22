@@ -9,6 +9,7 @@ import android.view.Menu;
 public class PopMovieDetailActivity extends AppCompatActivity {
 
     public final String LOG_TAG = PopMovieDetailActivity.class.getSimpleName();
+    private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class PopMovieDetailActivity extends AppCompatActivity {
             popMovieDetailActivityFragment.setArguments(arguments);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.movie_detail_container, popMovieDetailActivityFragment)
+                    .add(R.id.movie_detail_container, popMovieDetailActivityFragment, POPMOVIEFRAGMENT_TAG)
                     .commit();
         }
 
