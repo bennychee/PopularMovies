@@ -167,10 +167,20 @@ public class PopMovieDetailActivityFragment extends Fragment {
             this.mNumOfTabs = numOfTabs;
         }
 
+/*
+        getSupportFragmentManager().beginTransaction()
+        .replace(R.id.fragment_movies, new MainActivityFragment(), MAINFRAGMENT_TAG)
+                .commit();
+*/
+
+
+
         @Override
         public Fragment getItem(int position) {
+
             switch (position) {
                 case 0:
+
                     return movieDetailsFragment;
                 case 1:
                     return movieTrailerFragment;

@@ -20,6 +20,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private boolean mTwoPane;
     private static final String POPMOVIEFRAGMENT_TAG = "PMTAG";
     private static final String MAINFRAGMENT_TAG = "MFTAG";
+    private static final String HIGHRATEDFRAGMENT_TAG = "HRFTAG";
+    private static final String FAVFRAGMENT_TAG = "FFTAG";
+
     private String LOG_TAG = MainActivity.class.getSimpleName();
 
     private Toolbar toolbar = null;
@@ -69,13 +72,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                         case 1:
                             Log.d(LOG_TAG, "High Rated Selected from Spinner");
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_movies, new HighRatedActivityFragment())
+                                    .replace(R.id.fragment_movies, new HighRatedActivityFragment(), HIGHRATEDFRAGMENT_TAG)
                                     .commit();
                             break;
                         case 2:
                             Log.d(LOG_TAG, "Favorites Selected from Spinner");
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_movies, new FavActivityFragment())
+                                    .replace(R.id.fragment_movies, new FavActivityFragment(), FAVFRAGMENT_TAG)
                                     .commit();
                             break;
                     }
