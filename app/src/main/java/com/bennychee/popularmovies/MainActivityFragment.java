@@ -110,7 +110,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             firstDialog.dismiss();
         }
         getActivity().unregisterReceiver(myReceiver);
-
     }
 
     @Override
@@ -257,11 +256,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 // to, do so now.
                 popMoviesGridView.smoothScrollToPosition(mPosition);
             }
-
-
-            if (scrollPosition != GridView.INVALID_POSITION) {
-                popMoviesGridView.setSelection(scrollPosition);
-            }
+            
 
             if (firstEntry && data.getCount() > 0 && getResources().getBoolean(R.bool.dual_pane)) {
                 data.moveToFirst();

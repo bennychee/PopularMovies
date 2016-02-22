@@ -1,6 +1,5 @@
 package com.bennychee.popularmovies;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     private Spinner navigationSpinner;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -49,8 +48,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
                 R.layout.spinner_dropdown_item
         );
 
-        Log.d(LOG_TAG, "App theme = " + getResources().getResourceEntryName(getApplicationInfo().theme));
-
         navigationSpinner = new Spinner(getSupportActionBar().getThemedContext());
         navigationSpinner.setAdapter(spinnerAdapter);
         toolbar.addView(navigationSpinner, 0);
@@ -62,24 +59,62 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             navigationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    MainActivityFragment mainActivityFragment;
+                    HighRatedActivityFragment highRatedActivityFragment;
+                    FavActivityFragment favActivityFragment;
+
                     switch (position) {
                         case 0:
                             Log.d(LOG_TAG, "Popular Movies Selected from Spinner");
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_movies, new MainActivityFragment(), MAINFRAGMENT_TAG)
-                                    .commit();
+                            mainActivityFragment = new MainActivityFragment();
+                            if (savedInstanceState == null) {
+                                getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_movies, mainActivityFragment, MAINFRAGMENT_TAG)
+                                        .commit();
+                            } else {
+                                mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(MAINFRAGMENT_TAG);
+                                if (mainActivityFragment == null) {
+                                    mainActivityFragment = new MainActivityFragment();
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.fragment_movies, mainActivityFragment, MAINFRAGMENT_TAG)
+                                            .commit();
+                                }
+                            }
                             break;
                         case 1:
+
                             Log.d(LOG_TAG, "High Rated Selected from Spinner");
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_movies, new HighRatedActivityFragment(), HIGHRATEDFRAGMENT_TAG)
-                                    .commit();
+                            if (savedInstanceState == null) {
+                                highRatedActivityFragment = new HighRatedActivityFragment();
+                                getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_movies, highRatedActivityFragment, HIGHRATEDFRAGMENT_TAG)
+                                        .commit();
+                            } else {
+                                highRatedActivityFragment = (HighRatedActivityFragment) getSupportFragmentManager().findFragmentByTag(HIGHRATEDFRAGMENT_TAG);
+                                if (highRatedActivityFragment == null) {
+                                    highRatedActivityFragment = new HighRatedActivityFragment();
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.fragment_movies, highRatedActivityFragment, HIGHRATEDFRAGMENT_TAG)
+                                            .commit();
+                                }
+                            }
                             break;
                         case 2:
                             Log.d(LOG_TAG, "Favorites Selected from Spinner");
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_movies, new FavActivityFragment(), FAVFRAGMENT_TAG)
-                                    .commit();
+                            if (savedInstanceState == null) {
+                                favActivityFragment = new FavActivityFragment();
+                                getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_movies, favActivityFragment, FAVFRAGMENT_TAG)
+                                        .commit();
+                            } else {
+                                favActivityFragment = (FavActivityFragment) getSupportFragmentManager().findFragmentByTag(FAVFRAGMENT_TAG);
+                                if (favActivityFragment == null) {
+                                    favActivityFragment = new FavActivityFragment();
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.fragment_movies, favActivityFragment, FAVFRAGMENT_TAG)
+                                            .commit();
+                                }
+                            }
                             break;
                     }
                 }
@@ -96,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, new PopMovieDetailActivityFragment(), POPMOVIEFRAGMENT_TAG)
                     .commit();
-                      }
+                      } else
+                            getSupportFragmentManager().findFragmentByTag(POPMOVIEFRAGMENT_TAG);
         } else {
             mTwoPane = false;
         }
